@@ -14,14 +14,6 @@
       "biome.json"
     ]
   },
-  "plugins": [
-    "./tools/biome-plugins/no-swallowed-errors.grit",
-    "./tools/biome-plugins/no-interpolated-console.grit",
-    "./tools/biome-plugins/no-setter-only-effect.grit",
-    "./tools/biome-plugins/no-render-helpers.grit",
-    "./tools/biome-plugins/descriptive-test-names.grit",
-    "./tools/biome-plugins/require-assertion-reason.grit"
-  ],
   "linter": {
     "enabled": true,
     "rules": {

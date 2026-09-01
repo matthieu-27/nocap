@@ -1,9 +1,0 @@
-engine biome(1.0)
-language js
-
-`console.$METHOD(`...${$$$EXPRESSIONS}...`)` where {
-    register_diagnostic(
-        span = $METHOD,
-        message = "console call with interpolated template — use structured logging: logger.info('message', { fields }) (no-interpolated-console)"
-    )
-}

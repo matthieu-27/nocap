@@ -1,9 +1,0 @@
-engine biome(1.0)
-language js
-
-`$VALUE as unknown` where {
-    register_diagnostic(
-        span = $VALUE,
-        message = "`as unknown` assertion — prefer a stricter type; if truly unavoidable, suppress with a biome-ignore comment that carries the reason (require-assertion-reason)"
-    )
-}

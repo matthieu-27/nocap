@@ -36,54 +36,96 @@ repos:
 
   # ---------- python: project conventions ----------
   # Each script receives staged filenames as argv and exits non-zero on violation.
+  # `uv run python` because a bare `python` shim on this machine requires uv.
   - repo: local
     hooks:
       - id: check-no-mock
         name: check_no_mock — no mock/patch hiding real problems
-        entry: python scripts/lint/check_no_mock.py
+        entry: uv run python scripts/lint/check_no_mock.py
         language: system
         files: ^apps/worker/tests/.*\.py$
 
       - id: check-no-factories
         name: check_no_factories — parametrized fixtures over factories
-        entry: python scripts/lint/check_no_factories.py
+        entry: uv run python scripts/lint/check_no_factories.py
         language: system
         files: ^apps/worker/tests/.*\.py$
 
       - id: check-service-purity
         name: check_service_purity — no presentation code in service layer
-        entry: python scripts/lint/check_service_purity.py
+        entry: uv run python scripts/lint/check_service_purity.py
         language: system
         files: ^apps/worker/src/services/.*\.py$
 
       - id: check-except-log-level
         name: check_except_log_level — appropriate level in except blocks
-        entry: python scripts/lint/check_except_log_level.py
+        entry: uv run python scripts/lint/check_except_log_level.py
         language: system
         files: ^apps/worker/.*\.py$
 
       - id: check-app-logger
         name: check_app_logger — instrumented app logger only
-        entry: python scripts/lint/check_app_logger.py
+        entry: uv run python scripts/lint/check_app_logger.py
         language: system
         files: ^apps/worker/.*\.py$
 
       - id: check-test-names
         name: check_test_names — actor_action_effect in test names
-        entry: python scripts/lint/check_test_names.py
+        entry: uv run python scripts/lint/check_test_names.py
         language: system
         files: ^apps/worker/tests/.*\.py$
 
       - id: check-import-direction
         name: check_import_direction — services never import presentation
-        entry: python scripts/lint/check_import_direction.py
+        entry: uv run python scripts/lint/check_import_direction.py
         language: system
         files: ^apps/worker/src/services/.*\.py$
 
-  # ---------- typescript: biome (standards + GritQL custom rules) ----------
-  # Custom rules (descriptive-test-names, no-interpolated-console,
-  # no-swallowed-errors, no-render-helpers, no-setter-only-effect,
-  # require-assertion-reason) are GritQL plugins loaded by biome.json.
+  # ---------- typescript: project conventions (line scanners) ----------
+  # Ported from the ESLint-era rules: Biome's embedded Grit engine (2.5.x)
+  # has no regex/like predicates and statement-level backtick patterns do not
+  # match — so these six run as python scanners instead of grit plugins.
+  - repo: local
+    hooks:
+      - id: check-no-swallowed-errors
+        name: check_no_swallowed_errors — empty catch must re-throw or log
+        entry: uv run python scripts/lint/check_no_swallowed_errors.py
+        language: system
+        files: ^(apps|packages|tools)/.*\.(ts|tsx|js|jsx|mjs)$
+
+      - id: check-no-interpolated-console
+        name: check_no_interpolated_console — structured logging over templates
+        entry: uv run python scripts/lint/check_no_interpolated_console.py
+        language: system
+        files: ^(apps|packages|tools)/.*\.(ts|tsx|js|jsx|mjs)$
+
+      - id: check-no-render-helpers
+        name: check_no_render_helpers — JSX functions must be components
+        entry: uv run python scripts/lint/check_no_render_helpers.py
+        language: system
+        files: ^(apps|packages|tools)/.*\.(ts|tsx|js|jsx|mjs)$
+
+      - id: check-no-setter-only-effect
+        name: check_no_setter_only_effect — derive instead of setter-only effect
+        entry: uv run python scripts/lint/check_no_setter_only_effect.py
+        language: system
+        files: ^(apps|packages|tools)/.*\.(ts|tsx|js|jsx|mjs)$
+
+      - id: check-descriptive-test-names
+        name: check_descriptive_test_names — plain-words test descriptions
+        entry: uv run python scripts/lint/check_descriptive_test_names.py
+        language: system
+        files: ^(apps|packages|tools)/.*\.(ts|tsx|js|jsx|mjs)$
+
+      - id: check-require-assertion-reason
+        name: check_require_assertion_reason — assertions need a reason
+        entry: uv run python scripts/lint/check_require_assertion_reason.py
+        language: system
+        files: ^(apps|packages|tools)/.*\.(ts|tsx|js|jsx|mjs)$
+
+  # ---------- typescript: biome (standards + formatter) ----------
+  # Custom TS conventions live in the python scanner hooks above;
+  # biome covers recommended rules, formatting, and import organization.
   # Policy: zero warnings — --error-on-warnings makes any warning fail.
   - repo: local
     hooks:
