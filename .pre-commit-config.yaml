@@ -1,0 +1,115 @@
+# Claim Tracker — pre-commit config
+# Install:  pip install pre-commit  (or: uv tool install pre-commit)
+#           pre-commit install
+# Update:   pre-commit autoupdate  — revs below are starting pins, not gospel
+#
+# Layout assumptions (monorepo):
+#   apps/web        React Router v8, TS          -> ESLint (flat, root config)
+#   apps/api        Hono, TS                     -> ESLint
+#   apps/worker     Python (uv)                  -> ruff + scripts/lint/*.py
+#   packages/shared TS types                      -> ESLint
+#
+# MISSING PIECES this config references (must exist before hooks pass):
+#   scripts/lint/check_*.py        — 7 Python convention checks
+#   tools/eslint-plugin-local/     — custom TS rules as ESLint plugin
+#   .vale.ini + styles/de-blab/    — Vale "de-blab" style
+
+repos:
+  # ---------- generic hygiene ----------
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-yaml
+      - id: check-merge-conflict
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-added-large-files
+        args: [--maxkb=500]
+
+  # ---------- python: lint (worker) ----------
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.5
+    hooks:
+      - id: ruff
+        args: [--fix]
+        files: ^apps/worker/.*\.py$
+
+  # ---------- python: project conventions ----------
+  # Each script receives staged filenames as argv and exits non-zero on violation.
+  - repo: local
+    hooks:
+      - id: check-no-mock
+        name: check_no_mock — no mock/patch hiding real problems
+        entry: python scripts/lint/check_no_mock.py
+        language: system
+        files: ^apps/worker/tests/.*\.py$
+
+      - id: check-no-factories
+        name: check_no_factories — parametrized fixtures over factories
+        entry: python scripts/lint/check_no_factories.py
+        language: system
+        files: ^apps/worker/tests/.*\.py$
+
+      - id: check-service-purity
+        name: check_service_purity — no presentation code in service layer
+        entry: python scripts/lint/check_service_purity.py
+        language: system
+        files: ^apps/worker/src/services/.*\.py$
+
+      - id: check-except-log-level
+        name: check_except_log_level — appropriate level in except blocks
+        entry: python scripts/lint/check_except_log_level.py
+        language: system
+        files: ^apps/worker/.*\.py$
+
+      - id: check-app-logger
+        name: check_app_logger — instrumented app logger only
+        entry: python scripts/lint/check_app_logger.py
+        language: system
+        files: ^apps/worker/.*\.py$
+
+      - id: check-test-names
+        name: check_test_names — actor_action_effect in test names
+        entry: python scripts/lint/check_test_names.py
+        language: system
+        files: ^apps/worker/tests/.*\.py$
+
+      - id: check-import-direction
+        name: check_import_direction — services never import presentation
+        entry: python scripts/lint/check_import_direction.py
+        language: system
+        files: ^apps/worker/src/services/.*\.py$
+
+  # ---------- typescript: biome (standards + GritQL custom rules) ----------
+  # Custom rules (descriptive-test-names, no-interpolated-console,
+  # no-swallowed-errors, no-render-helpers, no-setter-only-effect,
+  # require-assertion-reason) are GritQL plugins loaded by biome.json.
+  # Policy: zero warnings — --error-on-warnings makes any warning fail.
+  - repo: local
+    hooks:
+      - id: biome
+        name: biome — lint + format, zero warnings
+        entry: bunx @biomejs/biome check --fix --error-on-warnings
+        language: system
+        files: ^(apps|packages|tools)/.*\.(ts|tsx|js|jsx|mjs|json)$
+
+  # ---------- review: fallow (pre-push stage) ----------
+  # Register with: pre-commit install --hook-type pre-push
+  # Findings get addressed or explicitly justified, never ignored.
+  - repo: local
+    hooks:
+      - id: fallow
+        name: fallow — AI review of outgoing changes
+        entry: npx fallow
+        language: system
+        stages: [pre-push]
+
+  # ---------- prose: de-blab ----------
+  # Requires vale binary + .vale.ini + styles/de-blab (comment/docstring/MD checks)
+  - repo: local
+    hooks:
+      - id: vale
+        name: vale — de-blab comments, docstrings, markdown
+        entry: vale
+        language: system
+        files: ^(docs/.*\.md|apps/worker/.*\.py|README\.md)$

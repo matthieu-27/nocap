@@ -1,0 +1,10 @@
+engine biome(1.0)
+language js
+
+`useEffect(() => $SETTER($$$ARGS), $$$DEPS)` where {
+    $SETTER <: regex("set[A-Z].*"),
+    register_diagnostic(
+        span = $SETTER,
+        message = "useEffect only calls a state setter — derive the value during render instead (no-setter-only-effect)"
+    )
+}

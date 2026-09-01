@@ -1,0 +1,12 @@
+engine biome(1.0)
+language js
+
+or {
+    `try { $$$BODY } catch { }`,
+    `try { $$$BODY2 } catch ($ERROR) { }`
+} where {
+    register_diagnostic(
+        span = $ERROR,
+        message = "empty catch swallows the error — re-throw or log it (no-swallowed-errors)"
+    )
+}
