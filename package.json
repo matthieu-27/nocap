@@ -1,0 +1,14 @@
+{
+  "name": "claimtracker",
+  "private": true,
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "check": "bunx @biomejs/biome check --error-on-warnings",
+    "check:fix": "bunx @biomejs/biome check --fix --error-on-warnings",
+    "test": "bun test"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.2.4",
+    "typescript": "^5.9.2"
+  }
+}
