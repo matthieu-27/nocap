@@ -6,7 +6,14 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["apps/**", "packages/**", "tools/**", "*.mjs", "biome.json"]
+    "includes": [
+      "apps/**",
+      "packages/**",
+      "tools/**",
+      "*.mjs",
+      "biome.json",
+      "vitest.config.ts"
+    ]
   },
   "linter": {
     "enabled": true,

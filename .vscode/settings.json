@@ -1,0 +1,5 @@
+{
+  "vitest.rootConfig": "./vitest.config.ts",
+  "vitest.configSearchPatternInclude": "vitest.config.ts",
+  "testing.automaticallyOpenTestResults": "openOnTestFailure"
+}

@@ -1,5 +1,5 @@
 {
-  "name": "@claimtracker/api",
+  "name": "@nocap/api",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -12,7 +12,7 @@
     "db:migrate": "drizzle-kit migrate"
   },
   "dependencies": {
-    "@claimtracker/shared": "workspace:*",
+    "@nocap/shared": "workspace:*",
     "drizzle-orm": "^0.44.0",
     "hono": "^4.6.0",
     "postgres": "^3.4.0"
