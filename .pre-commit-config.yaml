@@ -131,7 +131,7 @@ repos:
     hooks:
       - id: biome
         name: biome — lint + format, zero warnings
-        entry: bunx @biomejs/biome check --fix --error-on-warnings
+        entry: uv run python scripts/lint/run_biome.py
         language: system
         files: ^(apps|packages|tools)/.*\.(ts|tsx|js|jsx|mjs|json)$
 
