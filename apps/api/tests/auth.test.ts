@@ -166,6 +166,7 @@ describe('better auth endpoints', () => {
       .select()
       .from(userTable)
       .where(eq(userTable.email, 'root@example.com'));
+    if (!adminRow) throw new Error('admin row missing after signup');
     await db
       .update(userTable)
       .set({ role: 'admin' })
@@ -183,6 +184,7 @@ describe('better auth endpoints', () => {
       .select()
       .from(userTable)
       .where(eq(userTable.email, 'target@example.com'));
+    if (!targetRow) throw new Error('target row missing after signup');
 
     const setRole = await post(
       '/api/auth/admin/set-role',
