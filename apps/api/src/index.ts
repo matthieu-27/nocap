@@ -1,11 +1,15 @@
 import { Hono } from 'hono';
 import { ServiceError } from './errors';
 import { log } from './logger';
+import { sessionMiddleware } from './middleware/auth';
+import authRoutes from './routes/auth.routes';
 import healthRoutes from './routes/health.routes';
 
 const app = new Hono();
 
+app.use('*', sessionMiddleware);
 app.route('/', healthRoutes);
+app.route('/', authRoutes);
 
 app.onError((err, c) => {
   if (err instanceof ServiceError) {
