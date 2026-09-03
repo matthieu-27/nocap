@@ -10,8 +10,10 @@ const TABLES = [
   'votes',
   'posts',
   'domains',
-  'sessions',
-  'users',
+  'session',
+  'account',
+  'verification',
+  'user',
 ] as const;
 
 export async function resetDb(): Promise<void> {

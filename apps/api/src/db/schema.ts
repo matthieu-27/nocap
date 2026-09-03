@@ -12,34 +12,7 @@ import {
   uniqueIndex,
   varchar,
 } from 'drizzle-orm/pg-core';
-
-export const users = pgTable('users', {
-  id: serial('id').primaryKey(),
-  username: varchar('username', { length: 32 }).notNull().unique(),
-  email: varchar('email', { length: 255 }).notNull().unique(),
-  passwordHash: text('password_hash').notNull(),
-  role: varchar('role', { length: 8 }).notNull().default('user'),
-  karma: integer('karma').notNull().default(0),
-  createdAt: timestamp('created_at', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-});
-
-export const sessions = pgTable(
-  'sessions',
-  {
-    id: serial('id').primaryKey(),
-    userId: integer('user_id')
-      .notNull()
-      .references(() => users.id, { onDelete: 'cascade' }),
-    tokenHash: text('token_hash').notNull(),
-    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
-    createdAt: timestamp('created_at', { withTimezone: true })
-      .notNull()
-      .defaultNow(),
-  },
-  (table) => [uniqueIndex('sessions_token_hash_idx').on(table.tokenHash)],
-);
+import { user } from './auth-schema';
 
 export const domains = pgTable('domains', {
   id: serial('id').primaryKey(),
@@ -49,7 +22,7 @@ export const domains = pgTable('domains', {
   isLocked: boolean('is_locked').notNull().default(false),
   createdBy: integer('created_by')
     .notNull()
-    .references(() => users.id),
+    .references(() => user.id),
   createdAt: timestamp('created_at', { withTimezone: true })
     .notNull()
     .defaultNow(),
@@ -64,7 +37,7 @@ export const posts = pgTable(
       .references(() => domains.id),
     authorId: integer('author_id')
       .notNull()
-      .references(() => users.id),
+      .references(() => user.id),
     title: varchar('title', { length: 300 }).notNull(),
     body: text('body'),
     url: text('url').notNull(),
@@ -91,7 +64,7 @@ export const votes = pgTable(
       .references(() => posts.id, { onDelete: 'cascade' }),
     userId: integer('user_id')
       .notNull()
-      .references(() => users.id, { onDelete: 'cascade' }),
+      .references(() => user.id, { onDelete: 'cascade' }),
     value: smallint('value').notNull(),
     createdAt: timestamp('created_at', { withTimezone: true })
       .notNull()
@@ -111,7 +84,7 @@ export const comments = pgTable(
       .references(() => posts.id, { onDelete: 'cascade' }),
     authorId: integer('author_id')
       .notNull()
-      .references(() => users.id),
+      .references(() => user.id),
     parentId: integer('parent_id'),
     body: text('body').notNull(),
     score: integer('score').notNull().default(0),
@@ -131,7 +104,7 @@ export const commentVotes = pgTable(
       .references(() => comments.id, { onDelete: 'cascade' }),
     userId: integer('user_id')
       .notNull()
-      .references(() => users.id, { onDelete: 'cascade' }),
+      .references(() => user.id, { onDelete: 'cascade' }),
     value: smallint('value').notNull(),
   },
   (table) => [
@@ -143,7 +116,7 @@ export const reports = pgTable('reports', {
   id: serial('id').primaryKey(),
   reporterId: integer('reporter_id')
     .notNull()
-    .references(() => users.id),
+    .references(() => user.id),
   postId: integer('post_id').references(() => posts.id, {
     onDelete: 'cascade',
   }),
@@ -161,10 +134,10 @@ export const modActions = pgTable('mod_actions', {
   id: serial('id').primaryKey(),
   modId: integer('mod_id')
     .notNull()
-    .references(() => users.id),
+    .references(() => user.id),
   action: varchar('action', { length: 32 }).notNull(),
   targetPostId: integer('target_post_id').references(() => posts.id),
-  targetUserId: integer('target_user_id').references(() => users.id),
+  targetUserId: integer('target_user_id').references(() => user.id),
   reason: text('reason').notNull(),
   createdAt: timestamp('created_at', { withTimezone: true })
     .notNull()

@@ -1,8 +1,7 @@
 import type { SessionUser } from '@nocap/shared';
 import type { Context } from 'hono';
-import { getCookie } from 'hono/cookie';
 import { ServiceError } from '../errors';
-import { getUserBySessionToken } from '../services/session.service';
+import { auth } from '../lib/auth';
 
 export interface AuthEnv {
   Variables: { user: SessionUser | null };
@@ -12,8 +11,19 @@ export const sessionMiddleware = async (
   c: Context<AuthEnv>,
   next: () => Promise<void>,
 ): Promise<Response | undefined> => {
-  const token = getCookie(c, 'ct_session');
-  c.set('user', token ? await getUserBySessionToken(token) : null);
+  const session = await auth.api.getSession({ headers: c.req.raw.headers });
+  c.set(
+    'user',
+    session
+      ? {
+          id: Number(session.user.id),
+          username: session.user.username ?? session.user.name,
+          // Better Auth types role as the admin plugin's default union;
+          // the column also holds 'mod', so the assertion widens the type.
+          role: (session.user.role ?? 'user') as SessionUser['role'],
+        }
+      : null,
+  );
   await next();
   return undefined;
 };
