@@ -7,6 +7,6 @@ export default defineConfig({
   dbCredentials: {
     url:
       process.env.DATABASE_URL ??
-      'postgres://claimtracker:your-dev-password@localhost:5432/claimtracker',
+      'postgres://nocap:your-dev-password@localhost:5432/nocap',
   },
 });
