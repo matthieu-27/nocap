@@ -4,7 +4,7 @@ import * as schema from './schema';
 
 const connectionString =
   process.env.DATABASE_URL ??
-  'postgres://claimtracker:your-dev-password@localhost:5432/claimtracker';
+  'postgres://nocap:your-dev-password@localhost:5432/nocap';
 
 export const pool = postgres(connectionString);
 export const db = drizzle(pool, { schema });
