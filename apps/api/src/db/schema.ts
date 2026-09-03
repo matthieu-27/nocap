@@ -14,6 +14,8 @@ import {
 } from 'drizzle-orm/pg-core';
 import { user } from './auth-schema';
 
+export * from './auth-schema';
+
 export const domains = pgTable('domains', {
   id: serial('id').primaryKey(),
   slug: varchar('slug', { length: 32 }).notNull().unique(),

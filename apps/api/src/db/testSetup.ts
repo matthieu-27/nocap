@@ -2,18 +2,19 @@ import { sql } from 'drizzle-orm';
 import { db, pool } from './client';
 
 const TABLES = [
-  'jobs',
-  'mod_actions',
-  'reports',
-  'comment_votes',
-  'comments',
-  'votes',
-  'posts',
-  'domains',
-  'session',
-  'account',
-  'verification',
-  'user',
+  '"jobs"',
+  '"mod_actions"',
+  '"reports"',
+  '"comment_votes"',
+  '"comments"',
+  '"votes"',
+  '"posts"',
+  '"domains"',
+  '"session"',
+  '"account"',
+  '"verification"',
+  // "user" is a reserved keyword — must stay quoted
+  '"user"',
 ] as const;
 
 export async function resetDb(): Promise<void> {
