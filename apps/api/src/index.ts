@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import { ServiceError } from './errors';
+import { auth } from './lib/auth';
 import { log } from './logger';
 import { sessionMiddleware } from './middleware/auth';
 import authRoutes from './routes/auth.routes';
@@ -10,6 +11,8 @@ const app = new Hono();
 app.use('*', sessionMiddleware);
 app.route('/', healthRoutes);
 app.route('/', authRoutes);
+
+app.on(['POST', 'GET'], '/api/auth/*', (c) => auth.handler(c.req.raw));
 
 app.onError((err, c) => {
   if (err instanceof ServiceError) {
