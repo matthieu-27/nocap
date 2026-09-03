@@ -2,6 +2,8 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+> **Superseded in part (2026-09-03):** Tasks 4-5 (auth service, auth routes/middleware/rate-limit) were replaced by Better Auth — see `docs/superpowers/specs/2026-09-03-better-auth-replacement-design.md` and `docs/superpowers/plans/2026-09-03-better-auth-replacement.md`. `requireUser`, `requireRole`, and `SessionUser` keep the signatures used by Tasks 6-12, so all remaining tasks apply unchanged.
+
 **Goal:** Build the claim tracker's Hono API — auth, domains, posts, votes, comments, reports, moderation — as a testable Bun workspace in the monorepo.
 
 **Architecture:** Three-layer API: Hono routes (presentation) → service functions (business logic, no HTTP imports) → Drizzle + Postgres. Tests hit routes through Hono's `app.request()` against a real dev Postgres, truncating state between tests. Monorepo: `packages/shared` holds DTO types consumed by API and (in Plan 2) web.
