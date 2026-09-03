@@ -10,5 +10,10 @@ export const auth = betterAuth({
   emailAndPassword: { enabled: true },
   plugins: [admin(), username()],
   advanced: { database: { generateId: 'serial' } },
+  rateLimit: {
+    enabled: true,
+    storage: 'database',
+    customRules: { '/sign-in/email': { window: 900, max: 5 } },
+  },
   session: { expiresIn: 60 * 60 * 24 * 30 },
 });

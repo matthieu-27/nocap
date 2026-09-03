@@ -13,6 +13,7 @@ const TABLES = [
   '"session"',
   '"account"',
   '"verification"',
+  '"rate_limit"',
   // "user" is a reserved keyword — must stay quoted
   '"user"',
 ] as const;
