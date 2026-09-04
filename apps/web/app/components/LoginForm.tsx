@@ -40,6 +40,7 @@ export function LoginForm({
     event: FormEvent<HTMLFormElement>,
   ): Promise<void> {
     event.preventDefault();
+    setError(null);
     setBusy(true);
     const result = await onSubmit({ email, password });
     setBusy(false);

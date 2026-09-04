@@ -44,6 +44,7 @@ export function SignupForm({
     event: FormEvent<HTMLFormElement>,
   ): Promise<void> {
     event.preventDefault();
+    setError(null);
     if (!USERNAME_RE.test(username)) {
       setError('Username must be 3-32 letters, digits, or underscores.');
       return;
