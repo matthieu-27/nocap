@@ -1,5 +1,10 @@
 // Loaded by every vitest run (see root vitest.config.ts). DOM matchers only
-// make sense under jsdom, so guard the import; the act flag is harmless in node.
+// make sense under jsdom, so guard the runtime import; the act flag is
+// harmless in node. The type-only import below pulls jest-dom's `vitest`
+// module augmentation into every tsc program that includes this file, so
+// matchers like toBeInTheDocument typecheck in test files.
+import type {} from '@testing-library/jest-dom/vitest';
+
 (
   globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
 ).IS_REACT_ACT_ENVIRONMENT = true;
@@ -33,5 +38,3 @@ if (typeof document !== 'undefined') {
     }
   }
 }
-
-export {};
