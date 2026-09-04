@@ -1,8 +1,8 @@
-# Claim Tracker — Design Spec
+# NoCaP — Design Spec
 
-**Date:** 2026-09-01
+**Date:** 2026-09-01 (renamed 2026-09-03)
 **Status:** approved in conversation, pending implementation plan
-**Working title:** Claim Tracker (final name undecided — see Open Decisions)
+**Name:** **NoCaP** (decided 2026-09-03; was working title "Claim Tracker")
 
 ## 1. Purpose
 
@@ -140,7 +140,9 @@ post created → job {type: fetch_embed}
 worker: match provider → fetch oEmbed → store embed_json + provider
 ```
 
-Provider adapters: **YouTube** (public oEmbed, no auth — build first), **TikTok** (public oEmbed), **generic** (fetch `og:title`/`og:image`, render link card). Instagram deferred to v2 (Meta app token friction). Universal fallback: link card. Posts never block on embed fetching.
+Provider adapters: **YouTube** (public oEmbed, no auth — build first), **TikTok** (public oEmbed), **generic** (fetch `og:title`/`og:image`, render link card). Instagram and Facebook reels deferred to v2 (Meta app token friction). Universal fallback: link card. Posts never block on embed fetching.
+
+The allowed source types shown in the submit form come from a registry constant `SUPPORTED_PROVIDERS` in `packages/shared` (youtube, tiktok, link in v1). Provider adapters are separate modules: adding a type = one registry entry + one adapter module, no form or schema changes.
 
 GDPR: embeds are click-to-load — thumbnail until user clicks, iframe after. Defers full consent banner to v2.
 
@@ -195,7 +197,7 @@ E2E deferred. All verification runs are executed by the developer, never the ass
 | Bun + Vite 7 + RRv8 compatibility | Low risk, verify in week one with a skeleton app before committing to the stack |
 | Instagram embeds | Deferred; needs Meta app token |
 | GDPR/DSA posture | Mitigations designed in (click-to-load, data minimization, report flow); qualified review recommended pre-promotion |
-| Product name | Undecided; working title "Claim Tracker". Domain choice follows name |
+| Product name | **Decided: NoCaP** (2026-09-03). Display handles reuse the name as a sigil: channels `nocap/<slug>`, profiles `nocap/<username>`, both built from one constant `SITE_HANDLE = "nocap"` in `packages/shared` (changeable later). Domain choice follows |
 | Free subdomain | DuckDNS (instant) vs is-a.dev (PR-based, cleaner); custom domain later |
 | Vote brigading | v1 relies on one-vote-per-user + logged-in requirement; IP heuristics later if needed |
 
