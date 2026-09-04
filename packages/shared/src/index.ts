@@ -47,3 +47,12 @@ export interface SessionUser {
   username: string;
   role: 'user' | 'mod' | 'admin';
 }
+
+export function parseSessionRole(
+  role: string | null | undefined,
+): SessionUser['role'] {
+  if (role === 'user' || role === 'mod' || role === 'admin') {
+    return role;
+  }
+  return 'user';
+}

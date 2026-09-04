@@ -1,4 +1,4 @@
-import type { SessionUser } from '@nocap/shared';
+import { parseSessionRole, type SessionUser } from '@nocap/shared';
 import type { Context } from 'hono';
 import { ServiceError } from '../errors';
 import { auth } from '../lib/auth';
@@ -18,9 +18,7 @@ export const sessionMiddleware = async (
       ? {
           id: Number(session.user.id),
           username: session.user.username ?? session.user.name,
-          // Better Auth types role as the admin plugin's default union;
-          // the column also holds 'mod', so the assertion widens the type.
-          role: (session.user.role ?? 'user') as SessionUser['role'],
+          role: parseSessionRole(session.user.role),
         }
       : null,
   );

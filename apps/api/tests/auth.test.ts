@@ -43,6 +43,7 @@ describe('better auth endpoints', () => {
     const cookie = signup.headers.get('set-cookie') ?? '';
     expect(cookie).toContain('session_token');
     expect(cookie).toContain('HttpOnly');
+    expect(cookie.toLowerCase()).toContain('samesite=lax');
 
     const me = await app.request('/api/auth/get-session', {
       headers: { Cookie: cookie },
@@ -149,6 +150,34 @@ describe('better auth endpoints', () => {
       headers: { Cookie: cookie },
     });
     expect(forbidden.status).toBe(403);
+  });
+
+  it('unknown db role maps to user on the session', async () => {
+    const guarded = new Hono<AuthEnv>();
+    guarded.use('*', sessionMiddleware);
+    guarded.get('/me', (c) => c.json(requireUser(c)));
+
+    const signup = await post('/api/auth/sign-up/email', {
+      email: 'oddrole@example.com',
+      password: 'correct-horse-battery',
+      name: 'oddrole',
+      username: 'oddrole',
+    });
+    const cookie = (signup.headers.get('set-cookie') ?? '').split(';')[0] ?? '';
+    const [row] = await db
+      .select()
+      .from(userTable)
+      .where(eq(userTable.email, 'oddrole@example.com'));
+    if (!row) throw new Error('row missing after signup');
+    await db
+      .update(userTable)
+      .set({ role: 'not-a-role' })
+      .where(eq(userTable.id, row.id));
+
+    const me = await guarded.request('/me', { headers: { Cookie: cookie } });
+    expect(me.status).toBe(200);
+    const body = (await me.json()) as { role: string };
+    expect(body.role).toBe('user');
   });
 
   it('admin set-role promotes a user via the admin endpoint', async () => {
