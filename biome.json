@@ -15,6 +15,14 @@
       "vitest.config.ts"
     ]
   },
+  "overrides": [
+    {
+      "includes": ["apps/web/app/styles.css"],
+      "formatter": {
+        "enabled": false
+      }
+    }
+  ],
   "linter": {
     "enabled": true,
     "rules": {

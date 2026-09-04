@@ -1,0 +1,130 @@
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/geist';
+@import '@fontsource-variable/jetbrains-mono';
+@import '@fontsource/space-mono';
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ═══ tweakcn export — index.css (2026-09-03), pasted verbatim ═══ */
+:root {
+  --background: oklch(0.9830 0.0028 305.0054);
+  --foreground: oklch(0.1407 0.0293 303.0253);
+  --card: oklch(0.9487 0.0086 304.9200);
+  --card-foreground: oklch(0.1407 0.0293 303.0253);
+  --popover: oklch(0.9487 0.0086 304.9200);
+  --popover-foreground: oklch(0.1407 0.0293 303.0253);
+  --primary: oklch(0.4581 0.2418 291.9525);
+  --primary-foreground: oklch(0.9839 0.0014 305.0258);
+  --secondary: oklch(0.8775 0.0109 304.8728);
+  --secondary-foreground: oklch(0.2443 0.0444 302.4225);
+  --muted: oklch(0.8358 0.0148 304.8010);
+  --muted-foreground: oklch(0.4376 0.0454 303.5992);
+  --accent: oklch(0.8571 0.0440 304.3359);
+  --accent-foreground: oklch(0.2691 0.1055 297.9897);
+  --destructive: oklch(0.5288 0.1952 27.1567);
+  --destructive-foreground: oklch(1.0000 0 0);
+  --border: oklch(0.8266 0.0296 304.5504);
+  --input: oklch(0.8706 0.0219 304.6973);
+  --ring: oklch(0.4581 0.2418 291.9525);
+  --sidebar: oklch(0.9315 0.0115 304.8745);
+  --sidebar-foreground: oklch(0.2375 0.0585 301.3226);
+  --sidebar-primary: oklch(0.4581 0.2418 291.9525);
+  --sidebar-primary-foreground: oklch(1.0000 0 0);
+  --sidebar-accent: oklch(0.8968 0.0174 304.7769);
+  --sidebar-accent-foreground: oklch(0.3835 0.1992 292.5403);
+  --sidebar-border: oklch(0.8443 0.0265 304.6115);
+  --sidebar-ring: oklch(0.4581 0.2418 291.9525);
+  --font-sans: Inter, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --radius: 0.375rem;
+}
+.dark {
+  --background: oklch(0.1254 0.0106 305.4959);
+  --foreground: oklch(0.9515 0.0043 304.9829);
+  --card: oklch(0.1722 0.0153 303.8110);
+  --card-foreground: oklch(0.9165 0.0108 304.8819);
+  --popover: oklch(0.1826 0.0172 303.7333);
+  --popover-foreground: oklch(0.9165 0.0108 304.8819);
+  --primary: oklch(0.6217 0.1956 299.9529);
+  --primary-foreground: oklch(0.1493 0.0142 303.7413);
+  --secondary: oklch(0.2880 0.0208 304.0458);
+  --secondary-foreground: oklch(0.8706 0.0219 304.6973);
+  --muted: oklch(0.2264 0.0184 303.9187);
+  --muted-foreground: oklch(0.7074 0.0269 304.5193);
+  --accent: oklch(0.2443 0.0444 302.4225);
+  --accent-foreground: oklch(0.8315 0.0883 303.5630);
+  --destructive: oklch(0.5297 0.1644 28.9707);
+  --destructive-foreground: oklch(1.0000 0 0);
+  --border: oklch(0.2561 0.0223 303.8376);
+  --input: oklch(0.2030 0.0209 303.6064);
+  --ring: oklch(0.6217 0.1956 299.9529);
+  --sidebar: oklch(0.1493 0.0142 303.7413);
+  --sidebar-foreground: oklch(0.8775 0.0109 304.8728);
+  --sidebar-primary: oklch(0.6217 0.1956 299.9529);
+  --sidebar-primary-foreground: oklch(0.1477 0.0171 303.5461);
+  --sidebar-accent: oklch(0.2229 0.0245 303.5072);
+  --sidebar-accent-foreground: oklch(0.9596 0.0036 304.9938);
+  --sidebar-border: oklch(0.2264 0.0184 303.9187);
+  --sidebar-ring: oklch(0.6217 0.1956 299.9529);
+  --font-sans: Geist, system-ui, sans-serif;
+  --font-mono: "Space Mono", ui-monospace, monospace;
+  --radius: 0.25rem;
+}
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Font wiring (the only addition): fontsource registers families as
+   "… Variable"; remap the export's font tokens to the local families. */
+:root {
+  --font-sans: 'Inter Variable', Inter, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', monospace;
+}
+
+.dark {
+  --font-sans: 'Geist Variable', Geist, system-ui, sans-serif;
+  --font-mono: 'Space Mono', monospace;
+}
