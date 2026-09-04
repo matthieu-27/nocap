@@ -26,22 +26,7 @@ export default function ShellRoute(): React.ReactElement {
   const { domains } = useLoaderData<typeof loader>();
   const { data: session } = authClient.useSession();
   const navigate = useNavigate();
-
-  // The better-auth client type omits `role` and makes `username` optional,
-  // but the session payload carries both — the API reads them the same way
-  // (apps/api/src/middleware/auth.ts). Bridge here so toSessionUser narrows
-  // the real values; the assertion only widens the type to read one field.
-  const sessionUser = session?.user ?? null;
-  const role = (sessionUser as { role?: unknown } | null)?.role;
-  const user = toSessionUser(
-    sessionUser
-      ? {
-          id: sessionUser.id,
-          username: sessionUser.username ?? sessionUser.name,
-          role: typeof role === 'string' ? role : 'user',
-        }
-      : null,
-  );
+  const user = toSessionUser(session?.user ?? null);
 
   async function handleSignOut(): Promise<void> {
     await authClient.signOut();

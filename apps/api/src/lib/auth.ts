@@ -9,7 +9,7 @@ const isProd = process.env.NODE_ENV === 'production';
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, { provider: 'pg', schema }),
-  emailAndPassword: { enabled: true },
+  emailAndPassword: { enabled: true, minPasswordLength: 10 },
   plugins: [admin(), username()],
   trustedOrigins: [
     process.env.BETTER_AUTH_URL ?? 'http://localhost:3001',

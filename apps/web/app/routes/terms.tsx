@@ -1,3 +1,5 @@
+import { Link } from 'react-router';
+
 export default function TermsRoute(): React.ReactElement {
   return (
     <article className="max-w-2xl p-6">
@@ -19,9 +21,9 @@ export default function TermsRoute(): React.ReactElement {
         </p>
         <p>
           The service is provided as-is. See the{' '}
-          <a className="underline" href="/privacy">
+          <Link to="/privacy" className="underline">
             Privacy Policy
-          </a>
+          </Link>
           .
         </p>
       </div>
