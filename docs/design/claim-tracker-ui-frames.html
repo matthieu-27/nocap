@@ -1,0 +1,780 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NoCaP UI Frames</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Geist:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script>
+/* follow system theme before first paint; toggle reuses the same class */
+document.documentElement.classList.toggle("dark", window.matchMedia("(prefers-color-scheme: dark)").matches);
+</script>
+<style>
+/* ═══ tweakcn export — index.css (2026-09-03), pasted verbatim ═══ */
+:root {
+  --background: oklch(0.9830 0.0028 305.0054);
+  --foreground: oklch(0.1407 0.0293 303.0253);
+  --card: oklch(0.9487 0.0086 304.9200);
+  --card-foreground: oklch(0.1407 0.0293 303.0253);
+  --popover: oklch(0.9487 0.0086 304.9200);
+  --popover-foreground: oklch(0.1407 0.0293 303.0253);
+  --primary: oklch(0.4581 0.2418 291.9525);
+  --primary-foreground: oklch(0.9839 0.0014 305.0258);
+  --secondary: oklch(0.8775 0.0109 304.8728);
+  --secondary-foreground: oklch(0.2443 0.0444 302.4225);
+  --muted: oklch(0.8358 0.0148 304.8010);
+  --muted-foreground: oklch(0.4376 0.0454 303.5992);
+  --accent: oklch(0.8571 0.0440 304.3359);
+  --accent-foreground: oklch(0.2691 0.1055 297.9897);
+  --destructive: oklch(0.5288 0.1952 27.1567);
+  --destructive-foreground: oklch(1.0000 0 0);
+  --border: oklch(0.8266 0.0296 304.5504);
+  --input: oklch(0.8706 0.0219 304.6973);
+  --ring: oklch(0.4581 0.2418 291.9525);
+  --sidebar: oklch(0.9315 0.0115 304.8745);
+  --sidebar-foreground: oklch(0.2375 0.0585 301.3226);
+  --sidebar-primary: oklch(0.4581 0.2418 291.9525);
+  --sidebar-primary-foreground: oklch(1.0000 0 0);
+  --sidebar-accent: oklch(0.8968 0.0174 304.7769);
+  --sidebar-accent-foreground: oklch(0.3835 0.1992 292.5403);
+  --sidebar-border: oklch(0.8443 0.0265 304.6115);
+  --sidebar-ring: oklch(0.4581 0.2418 291.9525);
+  --font-sans: Inter, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --radius: 0.375rem;
+}
+.dark {
+  --background: oklch(0.1254 0.0106 305.4959);
+  --foreground: oklch(0.9515 0.0043 304.9829);
+  --card: oklch(0.1722 0.0153 303.8110);
+  --card-foreground: oklch(0.9165 0.0108 304.8819);
+  --popover: oklch(0.1826 0.0172 303.7333);
+  --popover-foreground: oklch(0.9165 0.0108 304.8819);
+  --primary: oklch(0.6217 0.1956 299.9529);
+  --primary-foreground: oklch(0.1493 0.0142 303.7413);
+  --secondary: oklch(0.2880 0.0208 304.0458);
+  --secondary-foreground: oklch(0.8706 0.0219 304.6973);
+  --muted: oklch(0.2264 0.0184 303.9187);
+  --muted-foreground: oklch(0.7074 0.0269 304.5193);
+  --accent: oklch(0.2443 0.0444 302.4225);
+  --accent-foreground: oklch(0.8315 0.0883 303.5630);
+  --destructive: oklch(0.5297 0.1644 28.9707);
+  --destructive-foreground: oklch(1.0000 0 0);
+  --border: oklch(0.2561 0.0223 303.8376);
+  --input: oklch(0.2030 0.0209 303.6064);
+  --ring: oklch(0.6217 0.1956 299.9529);
+  --sidebar: oklch(0.1493 0.0142 303.7413);
+  --sidebar-foreground: oklch(0.8775 0.0109 304.8728);
+  --sidebar-primary: oklch(0.6217 0.1956 299.9529);
+  --sidebar-primary-foreground: oklch(0.1477 0.0171 303.5461);
+  --sidebar-accent: oklch(0.2229 0.0245 303.5072);
+  --sidebar-accent-foreground: oklch(0.9596 0.0036 304.9938);
+  --sidebar-border: oklch(0.2264 0.0184 303.9187);
+  --sidebar-ring: oklch(0.6217 0.1956 299.9529);
+  --font-sans: Geist, system-ui, sans-serif;
+  --font-mono: "Space Mono", ui-monospace, monospace;
+  --radius: 0.25rem;
+}
+/* vote colors are SEMANTIC and fixed — deliberately outside the tweakcn export.
+   A theme swap must never move them. */
+:root { --up:#177A46; --up-soft:#E2F3E8; --down:#C0392B; --down-soft:#F9E7E4; --warn-soft:#F3EAD3; }
+.dark { --up:#4FC07E; --up-soft:#1D2B22; --down:#E06253; --down-soft:#33211E; --warn-soft:#33291A; }
+
+:root {
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { color-scheme: light; }
+html.dark { color-scheme: dark; }
+body {
+  margin: 0; background: var(--background); color: var(--foreground);
+  font-family: var(--font-sans); font-size: 15px; line-height: 1.55;
+  letter-spacing: 0.01em;
+}
+a { color: inherit; }
+.page { max-width: 1120px; margin: 0 auto; padding: 48px 24px 96px; }
+
+/* ---------- doc header ---------- */
+.theme-toggle{
+  float: right; font: inherit; font-size: 12.5px; font-weight: 500;
+  border: 1px solid var(--border); background: var(--card); color: var(--foreground);
+  border-radius: var(--radius-lg); padding: 5px 12px; cursor: pointer;
+}
+.theme-toggle:hover { background: var(--accent); color: var(--accent-foreground); }
+.doc-eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-foreground)}
+.doc-title{font-size:clamp(30px,4.5vw,44px);font-weight:700;margin:8px 0 10px;line-height:1.05}
+.doc-lede{font-size:16px;color:var(--muted-foreground);max-width:62ch;margin:0 0 8px}
+.doc-note{
+  font-size:13.5px;color:var(--muted-foreground);max-width:70ch;
+  border-left:3px solid var(--primary);padding:2px 0 2px 14px;margin:20px 0 0;
+}
+.route-table{width:100%;border-collapse:collapse;margin-top:26px;font-size:13.5px}
+.route-table th{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-foreground);text-align:left;padding:0 14px 8px 0;font-weight:500}
+.route-table td{border-top:1px solid var(--border);padding:9px 14px 9px 0;vertical-align:top}
+.route-table code{font-family:var(--font-mono);font-size:12.5px;background:var(--muted);border:1px solid var(--border);border-radius:4px;padding:1px 6px;white-space:nowrap}
+
+/* ---------- frame sections ---------- */
+.frame-section{margin-top:72px}
+.frame-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.frame-num{font-family:var(--font-mono);font-size:12px;color:var(--primary);letter-spacing:.1em}
+.frame-title{font-size:24px;font-weight:700;margin:0}
+.frame-desc{color:var(--muted-foreground);font-size:14px;margin:6px 0 18px;max-width:70ch}
+
+/* ---------- browser chrome ---------- */
+.browser{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--card);box-shadow:0 4px 12px 0 hsl(265 50% 10% / 0.05)}
+.browser-bar{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--card);border-bottom:1px solid var(--border)}
+.dots{display:flex;gap:6px}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--muted)}
+.url-pill{flex:1;max-width:340px;font-family:var(--font-mono);font-size:11.5px;color:var(--muted-foreground);background:var(--secondary);border:1px solid var(--border);border-radius:6px;padding:4px 10px;white-space:nowrap;overflow:hidden}
+
+/* ---------- annotation tags & chips ---------- */
+.tag{
+  font-family:var(--font-mono);font-size:10px;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--muted-foreground);
+  background:transparent;border:1px dashed var(--input);border-radius:4px;
+  padding:2px 6px;white-space:nowrap;
+}
+.tag-accent{color:var(--primary);border-color:var(--primary)}
+.map{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;align-items:center}
+.map-label{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-foreground);margin-right:4px}
+.chip{font-family:var(--font-mono);font-size:11.5px;border:1px solid var(--border);border-radius:5px;padding:3px 8px;background:var(--card)}
+.chip b{font-weight:500;color:var(--primary)}
+.chip code{font-family:var(--font-mono);font-size:11px;background:var(--muted);border-radius:3px;padding:0 4px}
+
+/* ---------- shadcn atoms ---------- */
+.btn{
+  display:inline-flex;align-items:center;gap:7px;font-family:inherit;font-size:13.5px;font-weight:500;
+  border:1px solid var(--border);background:var(--card);color:var(--foreground);
+  border-radius:var(--radius-lg);padding:7px 14px;cursor:default;line-height:1;
+}
+.btn-primary{background:var(--primary);border-color:var(--primary);color:var(--primary-foreground)}
+.btn-ghost{border-color:transparent;background:transparent;color:var(--muted-foreground)}
+.btn-sm{padding:4px 10px;font-size:12.5px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg)}
+.badge{display:inline-flex;align-items:center;font-size:11.5px;font-weight:500;border-radius:999px;padding:2px 9px;border:1px solid transparent;line-height:1.5}
+.badge-neutral{background:var(--muted);color:var(--muted-foreground);border-color:var(--border)}
+.badge-accent{background:var(--accent);color:var(--accent-foreground)}
+.badge-up{background:var(--up-soft);color:var(--up)}
+.badge-down{background:var(--down-soft);color:var(--down)}
+.badge-warn{background:var(--warn-soft);color:var(--muted-foreground);border-color:var(--border)}
+.avatar{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:var(--accent);color:var(--accent-foreground);font-weight:600;font-size:12px;width:30px;height:30px;flex:none}
+.avatar-lg{width:56px;height:56px;font-size:20px}
+.input{display:block;width:100%;border:1px solid var(--input);background:transparent;color:var(--foreground);border-radius:var(--radius-lg);padding:8px 11px;font:inherit;font-size:13.5px}
+.input::placeholder{color:var(--muted-foreground);opacity:.8}
+.field-label{font-size:12.5px;font-weight:600;margin:0 0 5px}
+.hint{font-size:12px;color:var(--muted-foreground)}
+.tabrow{display:flex;gap:2px;border:1px solid var(--border);background:var(--muted);border-radius:var(--radius-lg);padding:3px;width:max-content}
+.tab{font-size:13px;font-weight:500;padding:5px 13px;border-radius:calc(var(--radius) - 4px);color:var(--muted-foreground)}
+.tab-active{background:var(--card);color:var(--foreground);border:1px solid var(--border);box-shadow:0 1px 2px rgba(0,0,0,.06)}
+
+/* vote rail */
+.votes{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 8px;flex:none}
+.vbtn{width:26px;height:24px;display:grid;place-items:center;border:1px solid transparent;border-radius:6px;background:transparent;color:var(--muted-foreground)}
+.vbtn svg{width:15px;height:15px}
+.vbtn-on-up{background:var(--up-soft);color:var(--up)}
+.vbtn-on-down{background:var(--down-soft);color:var(--down)}
+.vscore{font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
+.vscore-up{color:var(--up)}
+.vscore-down{color:var(--down)}
+
+/* ---------- FRAME 1+2 : shell ---------- */
+/* right column removed → 2 columns, feed takes the rest */
+.shell{display:grid;grid-template-columns:236px minmax(0,1fr);gap:0;align-items:start}
+/* real flex-between navbar: logo left · search middle · account right */
+.navbar{grid-column:1/-1;display:flex;align-items:center;gap:16px;padding:9px 16px;background:var(--card);border-bottom:1px solid var(--border);position:relative}
+.nav-left{display:flex;align-items:center;gap:9px;font-weight:700;font-size:16px;flex:none}
+.logo-slot{width:26px;height:26px;border:1.5px dashed var(--primary);border-radius:var(--radius-sm);display:grid;place-items:center;color:var(--primary);font-family:var(--font-mono);font-size:8.5px}
+.nav-search{flex:1;max-width:480px;margin:0 auto;display:flex;align-items:center;gap:8px;border:1px solid var(--input);border-radius:999px;padding:6px 13px;color:var(--muted-foreground);font-size:13px}
+.nav-right{display:flex;align-items:center;gap:10px;flex:none;position:relative}
+/* account dropdown, rendered open */
+.user-dd{position:absolute;top:calc(100% + 2px);right:0;z-index:5;width:196px;background:var(--popover);color:var(--popover-foreground);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:0 8px 24px 2px hsl(0 0% 0% / 0.14);padding:5px}
+.user-dd-head{padding:7px 9px;border-bottom:1px solid var(--border);margin-bottom:5px}
+.dd-item{display:flex;align-items:center;gap:9px;font-size:13px;padding:6px 9px;border-radius:calc(var(--radius) - 2px)}
+.dd-item:hover{background:var(--sidebar-accent)}
+
+/* left sidebar = user's channel subscriptions */
+.col-left{background:var(--sidebar);color:var(--sidebar-foreground);border-right:1px solid var(--sidebar-border);padding:16px 12px;display:flex;flex-direction:column;min-height:560px}
+.side-heading{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-foreground);margin:0 4px 8px}
+.channel-scroll{overflow-y:auto;max-height:300px;scrollbar-width:thin;padding-right:2px}
+.channel{display:flex;align-items:center;gap:9px;font-size:13.5px;padding:6px 8px;border-radius:calc(var(--radius) - 2px);color:var(--sidebar-foreground)}
+.channel .c-ico{width:22px;height:22px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:11px;font-weight:600;background:var(--secondary);color:var(--muted-foreground)}
+.channel:hover{background:var(--sidebar-accent)}
+.channel-active{background:var(--sidebar-accent)}
+.channel-active .c-ico{background:var(--sidebar-primary);color:var(--sidebar-primary-foreground)}
+.channel .c-sub{margin-left:auto;font-family:var(--font-mono);font-size:10px;color:var(--muted-foreground)}
+.channel-create{color:var(--muted-foreground);font-size:13px}
+.side-foot{margin-top:auto;padding-top:14px;border-top:1px solid var(--sidebar-border)}
+.side-foot-links{display:flex;flex-direction:column;gap:6px;font-size:12.5px;color:var(--muted-foreground);padding:0 4px}
+.side-foot-tag{margin:8px 4px 0}
+
+.col-main{padding:18px 20px;background:var(--background)}
+.feed-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.feed-title{font-size:18px;font-weight:700;margin:0;font-family:var(--font-mono)}
+.feed-title b{color:var(--primary);font-weight:500}
+
+.post{display:flex;gap:4px;padding:10px 12px 12px 6px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:12px}
+.post-body{min-width:0;padding-left:6px}
+.post-topline{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.post-title{font-size:15.5px;font-weight:600;margin:0 0 5px;line-height:1.35}
+.post-title a{text-decoration:none}
+.post-meta{font-size:12.5px;color:var(--muted-foreground);margin-bottom:9px}
+.post-meta b{font-weight:600;color:var(--foreground)}
+.question{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted-foreground);margin-bottom:9px}
+.q-mark{width:16px;height:16px;border-radius:50%;background:var(--accent);color:var(--accent-foreground);display:grid;place-items:center;font-size:10px;font-weight:700;flex:none}
+.embed{display:flex;align-items:center;gap:12px;border:1px solid var(--border);border-radius:var(--radius-lg);padding:10px 12px;margin-bottom:9px;background:var(--secondary)}
+.embed-thumb{width:96px;height:54px;border-radius:calc(var(--radius) - 2px);background:var(--muted);display:grid;place-items:center;color:var(--muted-foreground);flex:none}
+.play-ico{width:0;height:0;border-left:11px solid var(--primary);border-top:7px solid transparent;border-bottom:7px solid transparent;margin-left:2px}
+.embed-txt{font-size:13px;font-weight:500}
+.embed-sub{font-size:12px;color:var(--muted-foreground);font-weight:400}
+.post-actions{display:flex;align-items:center;gap:14px;font-size:12.5px;color:var(--muted-foreground)}
+.action{display:inline-flex;align-items:center;gap:5px}
+.skeleton-post{border:1px dashed var(--input);border-radius:var(--radius-lg);padding:14px;margin-bottom:12px}
+.sk-line{height:10px;border-radius:5px;background:var(--muted);margin:8px 0}
+.sk-line-short{width:45%}
+
+/* ---------- FRAME 2 detail ---------- */
+.detail-wrap{padding:18px 24px;background:var(--background);max-width:860px;margin:0 auto}
+.breadcrumb{font-size:12.5px;color:var(--muted-foreground);margin-bottom:12px}
+/* full-width embed — post content gets the screen, comments scroll below it */
+.embed-hero{border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:10px;background:var(--secondary);overflow:hidden}
+.embed-hero-thumb{aspect-ratio:16/9;max-height:320px;width:100%;display:grid;place-items:center;background:var(--muted);color:var(--muted-foreground)}
+.comment-composer{display:flex;gap:10px;margin:16px 0}
+.composer-box{flex:1;min-width:0}
+.composer-actions{display:flex;justify-content:flex-end;margin-top:8px}
+.comment{display:flex;gap:8px;padding:10px 0 0}
+.comment-thread{border-left:2px solid var(--border);margin-left:13px;padding-left:16px}
+.comment-body{font-size:14px;margin:5px 0 7px}
+.comment-meta{font-size:12.5px;color:var(--muted-foreground)}
+.comment-meta b{font-weight:600;color:var(--foreground)}
+.comment-score{color:var(--up);font-weight:600}
+
+/* ---------- FRAME 3 submit PAGE ---------- */
+.submit-page{padding:26px 24px 40px;background:var(--background)}
+.submit-card{max-width:720px;margin:0 auto;padding:26px 28px}
+.submit-form-head{margin-bottom:18px}
+.submit-form-head h3{margin:0 0 3px;font-size:20px}
+.select{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--input);border-radius:var(--radius-lg);padding:8px 11px;font-size:13.5px;background:transparent}
+.provider-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.provider{font-family:var(--font-mono);font-size:11px;border:1px solid var(--border);border-radius:5px;padding:2px 8px;background:var(--card)}
+.provider-off{color:var(--muted-foreground);border-style:dashed}
+.submit-actions{display:flex;gap:10px;margin-top:20px;align-items:center}
+
+/* ---------- FRAME 4 auth (login-01 / signup-01) ---------- */
+.auth-stage{padding:44px 24px;background:var(--background);display:grid;place-items:center}
+.auth-card-01{width:100%;max-width:340px;padding:26px}
+.auth-card-01 .logo-slot{margin:0 auto 14px;width:34px;height:34px;border-radius:var(--radius)}
+.auth-card-01 h3{margin:0 0 3px;font-size:19px;text-align:center}
+.auth-card-01 .sub{text-align:center;font-size:13px;color:var(--muted-foreground);margin:0 0 18px}
+.auth-field{margin-bottom:13px}
+.auth-switch{text-align:center;font-size:13px;color:var(--muted-foreground);margin-top:14px}
+.auth-switch b{color:var(--foreground);font-weight:600}
+
+/* ---------- FRAME 5 DataTable ---------- */
+.dt-toolbar{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--card);flex-wrap:wrap}
+.dt-search{display:flex;align-items:center;gap:8px;border:1px solid var(--input);border-radius:var(--radius-lg);padding:6px 11px;font-size:13px;color:var(--muted-foreground);min-width:200px}
+.dt-select{border:1px solid var(--input);border-radius:var(--radius-lg);padding:6px 11px;font-size:13px}
+.table{width:100%;border-collapse:collapse;font-size:13.5px}
+.table th{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-foreground);text-align:left;font-weight:500;padding:10px 14px;border-bottom:1px solid var(--border)}
+.table td{padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:middle}
+.table tr:last-child td{border-bottom:0}
+.mono{font-family:var(--font-mono);font-size:12px;font-variant-numeric:tabular-nums}
+.target{max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row-actions{display:flex;gap:8px}
+.btn-danger{background:var(--destructive);color:var(--destructive-foreground);border-color:var(--destructive)}
+.dt-foot{display:flex;align-items:center;gap:14px;padding:12px 16px;border-top:1px solid var(--border);background:var(--card);font-size:12.5px;color:var(--muted-foreground);flex-wrap:wrap}
+.dt-page{margin-left:auto;display:flex;align-items:center;gap:6px}
+
+/* ---------- FRAME 6 profile ---------- */
+.profile{padding:26px 24px;background:var(--background)}
+.profile-head{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+.profile-name{font-size:22px;font-weight:700;margin:0;font-family:var(--font-mono)}
+.profile-name b{color:var(--primary);font-weight:500}
+.profile-stats{display:flex;gap:18px;font-size:13px;color:var(--muted-foreground);margin-top:4px}
+.stat b{color:var(--foreground);font-variant-numeric:tabular-nums;font-weight:600}
+.profile-body{display:grid;grid-template-columns:minmax(0,1fr) 268px;gap:16px;align-items:start}
+.mini-post{display:flex;gap:8px;padding:10px 12px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:10px;align-items:flex-start}
+.mini-post-title{font-size:14px;font-weight:600;margin:0 0 3px}
+.right-card{padding:14px}
+.right-card h4{margin:0 0 8px;font-size:14px}
+
+@media (max-width:900px){
+  .shell{grid-template-columns:minmax(0,1fr)}
+  .col-left{display:none}
+  .profile-body{grid-template-columns:1fr}
+  .route-table .hide-sm{display:none}
+}
+</style>
+</head>
+<body>
+<main class="page">
+
+  <header>
+    <button class="theme-toggle" id="theme-toggle" type="button">◐ toggle theme</button>
+    <div class="doc-eyebrow">Design frames · phase 3 · frontend</div>
+    <h1 class="doc-title">NoCaP — UI frames</h1>
+    <p class="doc-lede">Six screens for the claim forum, drawn with the shadcn/ui component vocabulary (Tailwind v4, <em>new-york</em> style). Every region maps to a real shadcn component or block — the mapping strip under each frame is the build list.</p>
+    <p class="doc-lede">Colors are the real tweakcn export pasted into this file verbatim — this page previews <code>apps/web/app/styles.css</code> as it will ship. Swap the export, the frames re-skin; the markup doesn't change.</p>
+    <div class="doc-note">Voting is single-axis and semantic: <b>▲</b> answers <i>“yes, well-sourced”</i>, <b>▼</b> answers <i>“no, poorly sourced”</i> — never agreement. Vote colors sit outside the theme on purpose.</div>
+    <table class="route-table">
+      <thead><tr><th>Route (React Router)</th><th>Screen</th><th class="hide-sm">Frame</th></tr></thead>
+      <tbody>
+        <tr><td><code>/</code> · <code>/d/:slug</code></td><td>Feed — global or per-channel, sort hot / new / top</td><td class="hide-sm">01</td></tr>
+        <tr><td><code>/p/:id</code></td><td>Post detail — embed, votes, threaded comments</td><td class="hide-sm">02</td></tr>
+        <tr><td><code>/submit</code> (page)</td><td>Create post — title, source type, URL, body</td><td class="hide-sm">03</td></tr>
+        <tr><td><code>/login</code> · <code>/signup</code></td><td>Auth — better-auth email + password (login-01 / signup-01)</td><td class="hide-sm">04</td></tr>
+        <tr><td><code>/mod</code> (role: mod+)</td><td>Report queue — DataTable, resolve / dismiss, channel lock</td><td class="hide-sm">05</td></tr>
+        <tr><td><code>/u/:username</code></td><td>Public profile — karma, post history, handle <code>nocap/username</code></td><td class="hide-sm">06</td></tr>
+      </tbody>
+    </table>
+  </header>
+
+  <!-- ============ FRAME 01 : FEED ============ -->
+  <section class="frame-section">
+    <div class="frame-head"><span class="frame-num">FRAME 01</span><h2 class="frame-title">Feed — home &amp; channel view</h2></div>
+    <p class="frame-desc">Two columns: your channel subscriptions on the left (in a scroll zone), the ranked feed everywhere else. Top bar is a real flex-between: logo left, search middle, account right. No right column — the feed gets the width.</p>
+    <div class="browser">
+      <div class="browser-bar">
+        <span class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+        <span class="url-pill">nocap.example.org/d/sports</span>
+        <span class="tag tag-accent">logo slot → public/logo.svg</span>
+      </div>
+      <div class="viewport shell">
+        <div class="navbar">
+          <div class="nav-left"><span class="logo-slot">LOGO</span>NoCaP</div>
+          <span class="nav-search">Search claims… <span class="tag" style="margin-left:auto">Input</span></span>
+          <div class="nav-right">
+            <span class="tag">logged-out variant: Log in · Sign up buttons</span>
+            <span class="avatar">tf</span>
+            <div class="user-dd">
+              <div class="user-dd-head"><b style="font-size:13px">nocap/trackfan</b><br><span class="hint">128 karma</span></div>
+              <div class="dd-item">👤 Profile</div>
+              <div class="dd-item">⚙ Settings</div>
+              <div class="dd-item">🛡 Mod tools <span class="badge badge-warn" style="margin-left:auto">mod</span></div>
+              <div class="dd-item">↩ Log out</div>
+            </div>
+            <span class="tag tag-accent">DropdownMenu</span>
+          </div>
+        </div>
+
+        <!-- left: user's subscriptions -->
+        <aside class="col-left">
+          <p class="side-heading">Your channels <span class="tag">ScrollArea</span></p>
+          <div class="channel-scroll">
+            <div class="channel"><span class="c-ico">a</span>nocap/all <span class="c-sub">joined</span></div>
+            <div class="channel channel-active"><span class="c-ico">S</span>nocap/sports</div>
+            <div class="channel"><span class="c-ico">P</span>nocap/politics <span class="c-sub">joined</span></div>
+            <div class="channel"><span class="c-ico">T</span>nocap/tech <span class="c-sub">joined</span></div>
+            <div class="channel"><span class="c-ico">M</span>nocap/movies</div>
+            <div class="channel"><span class="c-ico">$</span>nocap/money</div>
+            <div class="channel"><span class="c-ico">G</span>nocap/gaming</div>
+            <div class="channel"><span class="c-ico">B</span>nocap/beauty</div>
+            <div class="channel"><span class="c-ico">V</span>nocap/video-games</div>
+          </div>
+          <div class="channel channel-create" style="margin-top:10px">＋ Create channel <span class="badge badge-neutral">3 max</span></div>
+          <div class="side-foot">
+            <p class="side-heading">Legal</p>
+            <div class="side-foot-links"><span>Terms of Service</span><span>Privacy Policy</span><span>Contact</span></div>
+            <p class="side-foot-tag tag">handles = <code>SITE_HANDLE + "/" + slug</code></p>
+          </div>
+        </aside>
+
+        <!-- main: expanded feed -->
+        <div class="col-main">
+          <div class="feed-head">
+            <h3 class="feed-title"><b>nocap/</b>sports</h3>
+            <span class="tabrow"><span class="tab tab-active">Hot</span><span class="tab">New</span><span class="tab">Top</span></span>
+          </div>
+
+          <article class="post">
+            <div class="votes">
+              <button class="vbtn vbtn-on-up" aria-label="well-sourced vote"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 15l6-6 6 6"/></svg></button>
+              <span class="vscore vscore-up">47</span>
+              <button class="vbtn" aria-label="poorly-sourced vote"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></button>
+            </div>
+            <div class="post-body">
+              <div class="post-topline"><span class="badge badge-accent">nocap/sports</span><span class="badge badge-neutral">YouTube</span></div>
+              <h4 class="post-title"><a>Referee ignored three obvious fouls against Team X in the final — full Q4 footage</a></h4>
+              <p class="question"><span class="q-mark">?</span>One question — <b>Is this well-sourced?</b></p>
+              <div class="embed">
+                <span class="embed-thumb"><span class="play-ico"></span></span>
+                <span><span class="embed-txt">Load YouTube embed</span><br><span class="embed-sub">iframe only loads after your click — GDPR</span></span>
+              </div>
+              <div class="post-meta">by <b>nocap/trackfan</b> · 2 h ago · youtu.be</div>
+              <div class="post-actions">
+                <span class="action">💬 12 comments</span><span class="action">Share</span><span class="action">Report</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="post">
+            <div class="votes">
+              <button class="vbtn" aria-label="well-sourced vote"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 15l6-6 6 6"/></svg></button>
+              <span class="vscore vscore-down">−3</span>
+              <button class="vbtn vbtn-on-down" aria-label="poorly-sourced vote"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></button>
+            </div>
+            <div class="post-body">
+              <div class="post-topline"><span class="badge badge-accent">nocap/politics</span><span class="badge badge-neutral">link</span></div>
+              <h4 class="post-title"><a>“61% of voters support the bill” — poll has n=400, single state, no methodology page</a></h4>
+              <p class="question"><span class="q-mark">?</span>One question — <b>Is this well-sourced?</b></p>
+              <div class="post-meta">by <b>nocap/pollwatch</b> · 5 h ago · example-daily.com</div>
+              <div class="post-actions">
+                <span class="action">💬 34 comments</span><span class="action">Share</span><span class="action">Report</span>
+              </div>
+            </div>
+          </article>
+
+          <div class="skeleton-post">
+            <div class="sk-line sk-line-short"></div><div class="sk-line"></div><div class="sk-line" style="width:30%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="map">
+      <span class="map-label">components</span>
+      <span class="chip"><b>sidebar-08</b> block (no user dropdown at bottom — account lives in the top bar)</span>
+      <span class="chip"><b>ScrollArea</b> subscriptions</span>
+      <span class="chip"><b>Tabs</b> sort</span>
+      <span class="chip"><b>Card</b> post</span>
+      <span class="chip"><b>Button</b> vote</span>
+      <span class="chip"><b>Badge</b> channel</span>
+      <span class="chip"><b>DropdownMenu</b> account</span>
+      <span class="chip"><b>Skeleton</b> feed load</span>
+      <span class="chip"><b>Sonner</b> vote errors</span>
+      <span class="chip">constant <code>SITE_HANDLE="nocap"</code></span>
+    </div>
+  </section>
+
+  <!-- ============ FRAME 02 : POST DETAIL ============ -->
+  <section class="frame-section">
+    <div class="frame-head"><span class="frame-num">FRAME 02</span><h2 class="frame-title">Post detail — thread</h2></div>
+    <p class="frame-desc">Post content takes the full screen height — wide hero embed, body, votes — and the comments live below it. Same card vocabulary as the feed, unfolded.</p>
+    <div class="browser">
+      <div class="browser-bar">
+        <span class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+        <span class="url-pill">nocap.example.org/p/1042</span>
+        <span class="tag">Tabs — sort: best / new</span>
+      </div>
+      <div class="viewport">
+        <div class="detail-wrap">
+          <div class="breadcrumb">nocap/sports / Referee ignored three obvious fouls…</div>
+
+          <article class="post">
+            <div class="votes">
+              <button class="vbtn vbtn-on-up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 15l6-6 6 6"/></svg></button>
+              <span class="vscore vscore-up">47</span>
+              <button class="vbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></button>
+            </div>
+            <div class="post-body" style="width:100%">
+              <div class="post-topline"><span class="badge badge-accent">nocap/sports</span><span class="badge badge-neutral">YouTube</span></div>
+              <h4 class="post-title" style="font-size:19px">Referee ignored three obvious fouls against Team X in the final — full Q4 footage</h4>
+              <p class="question"><span class="q-mark">?</span>One question — <b>Is this well-sourced?</b></p>
+              <div class="embed-hero">
+                <div class="embed-hero-thumb"><span class="play-ico" style="transform:scale(2.4)"></span></div>
+              </div>
+              <p class="hint" style="margin:0 0 10px">Click-to-load — thumbnail only until consent; iframe after.</p>
+              <p class="comment-body">Full game tape, unedited broadcast feed. Timestamps in the body: 4:20, 7:55, 11:02 — contact happens off-frame on the third one, which the highlight clip conveniently cuts.</p>
+              <div class="post-meta">by <b>nocap/trackfan</b> · 2 h ago</div>
+              <div class="post-actions"><span class="action">💬 12 comments</span><span class="action">Share</span><span class="action">Report</span></div>
+            </div>
+          </article>
+
+          <div class="comment-composer">
+            <span class="avatar">tf</span>
+            <div class="composer-box">
+              <textarea class="input" rows="2" placeholder="Add to the discussion — cite what you checked"></textarea>
+              <div class="composer-actions"><span class="btn btn-sm btn-primary">Comment</span></div>
+            </div>
+          </div>
+
+          <div class="card" style="padding:10px 14px 14px">
+            <div class="comment">
+              <span class="avatar" style="background:var(--secondary);color:var(--muted-foreground)">pw</span>
+              <div style="min-width:0">
+                <div class="comment-meta"><b>nocap/pollwatch</b> · 1 h ago · <span class="comment-score">+9</span></div>
+                <p class="comment-body">Watch minute 4:20 — the replay angle from the broadcast already contradicts the claim. The source clip is cut before the contact.</p>
+                <div class="post-actions" style="gap:12px"><span class="action">Reply</span><span class="action">Report</span></div>
+              </div>
+            </div>
+            <div class="comment-thread">
+              <div class="comment">
+                <span class="avatar" style="background:var(--secondary);color:var(--muted-foreground)">tf</span>
+                <div style="min-width:0">
+                  <div class="comment-meta"><b>nocap/trackfan</b> · 58 min ago · <span style="color:var(--muted-foreground)">+4</span></div>
+                  <p class="comment-body">Good catch — I pulled the full game replay and added timestamps to the body.</p>
+                  <div class="post-actions" style="gap:12px"><span class="action">Reply</span><span class="action">Report</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="map">
+      <span class="map-label">components</span>
+      <span class="chip"><b>Card</b> + <b>Textarea</b> composer</span>
+      <span class="chip"><b>Collapsible</b> thread replies</span>
+      <span class="chip"><b>Button</b> comment vote</span>
+      <span class="chip"><b>Dialog</b> report reason</span>
+      <span class="chip"><b>Separator</b> thread lines</span>
+      <span class="chip">threading = <b>depth</b> from flat API list</span>
+    </div>
+  </section>
+
+  <!-- ============ FRAME 03 : SUBMIT PAGE ============ -->
+  <section class="frame-section">
+    <div class="frame-head"><span class="frame-num">FRAME 03</span><h2 class="frame-title">Create post — page</h2></div>
+    <p class="frame-desc">A real route, not a dialog: <code>/submit</code> owns the full screen. Title, source type, URL, and a large body. Cancel is “go back” — it returns to where you came from.</p>
+    <div class="browser">
+      <div class="browser-bar">
+        <span class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+        <span class="url-pill">nocap.example.org/submit</span>
+        <span class="tag">page · route /submit</span>
+      </div>
+      <div class="viewport">
+        <div class="submit-page">
+          <div class="card submit-card">
+            <div class="submit-form-head">
+              <h3>Post a claim</h3>
+              <p class="hint" style="margin:0">The community votes on one thing: is the source any good.</p>
+            </div>
+            <div style="margin-bottom:13px">
+              <p class="field-label">Channel</p>
+              <div class="select">nocap/sports <span class="tag">Select</span></div>
+            </div>
+            <div style="margin-bottom:13px">
+              <p class="field-label">Title</p>
+              <input class="input" value="Referee ignored three obvious fouls in Q4 — full footage">
+              <p class="hint" style="margin:5px 0 0">5–300 characters · plain text, no markdown in titles</p>
+            </div>
+            <div style="margin-bottom:13px">
+              <p class="field-label">Source type</p>
+              <div class="select">YouTube video <span class="tag">Select</span></div>
+              <div class="provider-row">
+                <span class="provider">youtube ✓</span>
+                <span class="provider">tiktok ✓</span>
+                <span class="provider">link (any page) ✓</span>
+                <span class="provider provider-off">instagram reel — v2</span>
+                <span class="provider provider-off">facebook reel — v2</span>
+              </div>
+              <p class="hint" style="margin:6px 0 0">Registry constant <code class="tag" style="text-transform:none">SUPPORTED_PROVIDERS</code> — provider adapters are expandable modules, so new types drop in without touching the form.</p>
+            </div>
+            <div style="margin-bottom:13px">
+              <p class="field-label">Source URL</p>
+              <input class="input" value="https://youtu.be/dQw4w9WgXcQ">
+              <p class="hint" style="margin:5px 0 0">Link card shown until the worker resolves the embed — the form never waits</p>
+            </div>
+            <div>
+              <p class="field-label">Body</p>
+              <textarea class="input" rows="8">Timestamps: 4:20, 7:55, 11:02 — contact happens off-frame on the third one.
+
+Full tape is the broadcast feed, unedited. The highlight clip circulating on X cuts before each contact; compare the Q4 wide shot.</textarea>
+            </div>
+            <div class="submit-actions">
+              <span class="btn btn-primary">Post claim</span>
+              <span class="btn">Go back</span>
+              <span class="tag" style="margin-left:auto">Cancel = navigate(-1)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="map">
+      <span class="map-label">components</span>
+      <span class="chip"><b>Card</b> + <b>Select</b> + <b>Input</b> + <b>Textarea</b></span>
+      <span class="chip"><b>Label</b> + <b>Form</b> validation</span>
+      <span class="chip"><b>Sonner</b> “Post created”</span>
+      <span class="chip">Zod schema = <code>PostDto</code> from shared</span>
+      <span class="chip"><code>SUPPORTED_PROVIDERS</code> constant — expandable modules</span>
+    </div>
+  </section>
+
+  <!-- ============ FRAME 04 : AUTH ============ -->
+  <section class="frame-section">
+    <div class="frame-head"><span class="frame-num">FRAME 04</span><h2 class="frame-title">Auth — login-01 / signup-01</h2></div>
+    <p class="frame-desc">Straight from the shadcn blocks: <code>bunx shadcn@latest add login-01 signup-01</code>, adapted only in copy and endpoints. Centered card, tight vertical rhythm, no chrome. Rate-limit errors surface as an Alert inside the card.</p>
+    <div class="browser">
+      <div class="browser-bar">
+        <span class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+        <span class="url-pill">nocap.example.org/signup</span>
+        <span class="tag">signup-01, adapted</span>
+      </div>
+      <div class="viewport">
+        <div class="auth-stage">
+          <div class="card auth-card-01">
+            <span class="logo-slot">LOGO</span>
+            <h3>Create an account</h3>
+            <p class="sub">Enter your info below</p>
+            <div class="auth-field"><p class="field-label">Username</p><input class="input" placeholder="3–32 letters, digits, _"></div>
+            <div class="auth-field"><p class="field-label">Email</p><input class="input" type="email" placeholder="you@example.com"></div>
+            <div class="auth-field"><p class="field-label">Password</p><input class="input" type="password" placeholder="min 10 characters"></div>
+            <span class="btn btn-primary" style="width:100%;justify-content:center">Sign up</span>
+            <p class="auth-switch">Already have an account? <b>Login</b></p>
+            <p class="hint" style="margin:12px 0 0;text-align:center">By signing up you accept the <b>Terms</b> and <b>Privacy Policy</b>.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="map">
+      <span class="map-label">components</span>
+      <span class="chip"><b>login-01</b> / <b>signup-01</b> blocks</span>
+      <span class="chip"><b>Card</b> + <b>Input</b> + <b>Label</b> + <b>Button</b></span>
+      <span class="chip"><b>Form</b> — inline field errors</span>
+      <span class="chip"><b>Alert</b> — rate-limit banner</span>
+      <span class="chip">no OAuth buttons in v1 — deferred by spec</span>
+    </div>
+  </section>
+
+  <!-- ============ FRAME 05 : MOD QUEUE ============ -->
+  <section class="frame-section">
+    <div class="frame-head"><span class="frame-num">FRAME 05</span><h2 class="frame-title">Mod queue — DataTable</h2></div>
+    <p class="frame-desc">The shadcn DataTable (TanStack Table): toolbar with search + status filter, sortable columns, pagination. Colors stay on the default theme tokens — only Remove uses destructive. A dedicated tweakcn override for <code>/mod</code> is possible later; nothing here depends on it.</p>
+    <div class="browser">
+      <div class="browser-bar">
+        <span class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+        <span class="url-pill">nocap.example.org/mod</span>
+        <span class="tag">route guard: requireRole → 403</span>
+      </div>
+      <div class="viewport">
+        <div class="dt-toolbar">
+          <span class="dt-search">🔍 Filter reports…</span>
+          <span class="dt-select">status: open ▾</span>
+          <span class="btn btn-sm">Columns ▾</span>
+          <span class="tag" style="margin-left:auto">DataTable toolbar</span>
+        </div>
+        <div style="overflow-x:auto">
+        <table class="table">
+          <thead><tr><th># ↓</th><th>Reason</th><th>Target</th><th>Reporter</th><th>Filed</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="mono">31</td>
+              <td><span class="badge badge-down">spam</span></td>
+              <td class="target">“This ’70% off’ deal is the same price…”</td>
+              <td class="mono">nocap/savvyshopper</td>
+              <td class="mono">2 h</td>
+              <td><div class="row-actions"><span class="btn btn-sm btn-danger">Remove</span><span class="btn btn-sm">Dismiss</span></div></td>
+            </tr>
+            <tr>
+              <td class="mono">30</td>
+              <td><span class="badge badge-warn">personal info</span></td>
+              <td class="target">comment by nocap/anon99 on “Poll methodology…”</td>
+              <td class="mono">nocap/pollwatch</td>
+              <td class="mono">4 h</td>
+              <td><div class="row-actions"><span class="btn btn-sm btn-danger">Remove</span><span class="btn btn-sm">Dismiss</span></div></td>
+            </tr>
+            <tr>
+              <td class="mono">29</td>
+              <td><span class="badge badge-neutral">off-domain</span></td>
+              <td class="target">“Referee ignored three fouls…” (nocap/movies)</td>
+              <td class="mono">nocap/trackfan</td>
+              <td class="mono">6 h</td>
+              <td><div class="row-actions"><span class="btn btn-sm btn-danger">Remove</span><span class="btn btn-sm">Dismiss</span></div></td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+        <div class="dt-foot">
+          <span>128 reports · <b class="mono">3</b> open</span>
+          <span class="dt-page">
+            <span>Rows per page <span class="dt-select" style="padding:3px 8px">10</span></span>
+            <span class="mono">1–3 of 3</span>
+            <span class="btn btn-sm">←</span><span class="btn btn-sm">→</span>
+          </span>
+          <span class="tag">every action opens Dialog → reason (min 3 chars) → mod_actions row</span>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;padding:12px 16px;border-top:1px solid var(--border);background:var(--card)">
+          <span class="hint">Channel controls:</span>
+          <span class="btn btn-sm">🔒 Lock nocap/movies</span>
+        </div>
+      </div>
+    </div>
+    <div class="map">
+      <span class="map-label">components</span>
+      <span class="chip"><b>DataTable</b> block (TanStack Table)</span>
+      <span class="chip"><b>Table</b> + <b>Select</b> + <b>DropdownMenu</b></span>
+      <span class="chip"><b>Pagination</b></span>
+      <span class="chip"><b>Dialog</b> resolve/lock reason</span>
+      <span class="chip">default theme tokens — optional tweakcn <code>/mod</code> override later</span>
+    </div>
+  </section>
+
+  <!-- ============ FRAME 06 : PROFILE ============ -->
+  <section class="frame-section">
+    <div class="frame-head"><span class="frame-num">FRAME 06</span><h2 class="frame-title">Profile — public</h2></div>
+    <p class="frame-desc">Karma is the reputation surface: cached on the user, recounted by the worker. Handles reuse the same <code>nocap/</code> sigil as channels — one constant, changeable later. Post history below; comments count-only in v1.</p>
+    <div class="browser">
+      <div class="browser-bar">
+        <span class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+        <span class="url-pill">nocap.example.org/u/trackfan</span>
+        <span class="tag">Avatar (initials — no image upload in v1)</span>
+      </div>
+      <div class="viewport">
+        <div class="profile">
+          <div class="profile-head">
+            <span class="avatar avatar-lg">tf</span>
+            <div>
+              <h3 class="profile-name"><b>nocap/</b>trackfan</h3>
+              <div class="profile-stats">
+                <span class="stat"><b>128</b> karma</span>
+                <span class="stat"><b>14</b> posts</span>
+                <span class="stat"><b>61</b> comments</span>
+                <span class="stat">member since <b>Sep 2026</b></span>
+              </div>
+            </div>
+            <span class="tabrow" style="margin-left:auto"><span class="tab tab-active">Posts</span><span class="tab">Comments</span></span>
+          </div>
+          <div class="profile-body">
+            <div>
+              <div class="mini-post">
+                <span class="badge badge-accent" style="margin-top:3px">nocap/sports</span>
+                <div>
+                  <p class="mini-post-title">Referee ignored three obvious fouls against Team X in the final — full Q4 footage</p>
+                  <span class="hint"><span class="comment-score" style="color:var(--up)">+47</span> · 2 h · 12 comments</span>
+                </div>
+              </div>
+              <div class="mini-post">
+                <span class="badge badge-accent" style="margin-top:3px">nocap/shopping</span>
+                <div>
+                  <p class="mini-post-title">Store price-tracker extension hides fees until checkout — here is the archived page</p>
+                  <span class="hint"><span style="color:var(--up);font-weight:600">+81</span> · 1 d · 30 comments</span>
+                </div>
+              </div>
+            </div>
+            <div class="card right-card">
+              <h4>Karma breakdown</h4>
+              <div class="profile-stats" style="flex-direction:column;gap:6px">
+                <span class="stat">post karma <b>103</b></span>
+                <span class="stat">comment karma <b>25</b></span>
+                <span class="hint">recounted periodically from raw votes — self-healing</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="map">
+      <span class="map-label">components</span>
+      <span class="chip"><b>Avatar</b> initials</span>
+      <span class="chip"><b>Tabs</b> posts / comments</span>
+      <span class="chip"><b>Card</b> mini post rows</span>
+      <span class="chip">data = <code>UserProfileDto</code></span>
+      <span class="chip">handle = <code>SITE_HANDLE + "/" + username</code></span>
+    </div>
+  </section>
+
+  <footer style="margin-top:72px;border-top:1px solid var(--border);padding-top:18px">
+    <p class="hint">Tokens above are the tweakcn export verbatim — this file doubles as the preview of <code>apps/web/app/styles.css</code>. Logo, wordmark, and favicon are the only bespoke assets. Vote colors are semantic and fixed; a theme never moves them.</p>
+  </footer>
+
+</main>
+<script>
+document.getElementById("theme-toggle").addEventListener("click", function () {
+  document.documentElement.classList.toggle("dark");
+});
+</script>
+</body>
+</html>

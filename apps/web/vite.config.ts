@@ -1,0 +1,20 @@
+import { fileURLToPath } from 'node:url';
+import { reactRouter } from '@react-router/dev/vite';
+import tailwindcss from '@tailwindcss/vite';
+import { defineConfig } from 'vite';
+
+export default defineConfig({
+  plugins: [reactRouter(), tailwindcss()],
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./app', import.meta.url)),
+    },
+  },
+  server: {
+    port: 3000,
+    strictPort: true,
+    proxy: {
+      '/api': 'http://localhost:3001',
+    },
+  },
+});

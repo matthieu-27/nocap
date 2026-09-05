@@ -56,3 +56,20 @@ export function parseSessionRole(
   }
   return 'user';
 }
+
+export const SITE_NAME = 'NoCaP';
+export const SITE_HANDLE = 'nocap';
+
+// Registry of postable source types (spec §6). Provider adapters in the
+// worker are separate modules keyed by these ids — adding a provider means
+// one entry here plus one adapter, no form or schema changes.
+export const SUPPORTED_PROVIDERS = ['youtube', 'tiktok', 'link'] as const;
+export type ProviderId = (typeof SUPPORTED_PROVIDERS)[number];
+
+export function channelHandle(slug: string): string {
+  return `${SITE_HANDLE}/${slug}`;
+}
+
+export function userHandle(username: string): string {
+  return `${SITE_HANDLE}/${username}`;
+}
