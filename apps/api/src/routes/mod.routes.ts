@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { ServiceError } from '../errors';
 import type { AuthEnv } from '../middleware/auth';
 import { requireRole, requireUser } from '../middleware/auth';
+import { listModPosts } from '../services/post.service';
 import {
   listReports,
   resolveReport,
@@ -9,6 +10,12 @@ import {
 } from '../services/report.service';
 
 const mod = new Hono<AuthEnv>();
+
+mod.get('/api/mod/posts', async (c) => {
+  const user = requireUser(c);
+  requireRole(user, ['mod', 'admin']);
+  return c.json(await listModPosts());
+});
 
 mod.get('/api/mod/reports', async (c) => {
   const user = requireUser(c);

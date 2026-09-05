@@ -33,6 +33,11 @@ export interface CommentDto {
   createdAt: string;
 }
 
+export interface ModPostDto extends PostDto {
+  removedAt: string | null;
+  openReports: number;
+}
+
 export type ReportReason =
   | 'spam'
   | 'harassment'

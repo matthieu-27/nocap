@@ -1,10 +1,11 @@
-import type { PostDto } from '@nocap/shared';
-import { and, desc, eq, gte, isNull, sql } from 'drizzle-orm';
+import type { ModPostDto, PostDto } from '@nocap/shared';
+import { and, count, desc, eq, gte, isNull, sql } from 'drizzle-orm';
 import { db } from '../db/client';
-import { domains, jobs, posts, user } from '../db/schema';
+import { domains, jobs, posts, reports, user } from '../db/schema';
 import { ServiceError } from '../errors';
 
 const WINDOW_DAYS = { day: 1, week: 7 } as const;
+const MOD_POSTS_LIMIT = 200;
 
 interface PostRow {
   id: number;
@@ -147,6 +148,35 @@ export async function getPost(postId: number): Promise<PostDto> {
   const row = rows[0];
   if (!row) throw new ServiceError(404, 'post not found');
   return toDto(row);
+}
+
+// Mod-facing listing: includes soft-deleted posts and counts open reports.
+// The group by must enumerate the joined columns feeding the coalesce
+// author template and the domain slug — the posts.id functional
+// dependency only covers posts.* columns (else PG raises 42803).
+export async function listModPosts(): Promise<ModPostDto[]> {
+  const rows = await db
+    .select({
+      ...postColumns,
+      deletedAt: posts.deletedAt,
+      openReports: count(reports.id),
+    })
+    .from(posts)
+    .innerJoin(domains, eq(domains.id, posts.domainId))
+    .innerJoin(user, eq(user.id, posts.authorId))
+    .leftJoin(
+      reports,
+      and(eq(reports.postId, posts.id), eq(reports.status, 'open')),
+    )
+    .groupBy(posts.id, domains.slug, user.username, user.name)
+    .orderBy(desc(posts.createdAt))
+    .limit(MOD_POSTS_LIMIT);
+
+  return rows.map((row) => ({
+    ...toDto(row),
+    removedAt: row.deletedAt?.toISOString() ?? null,
+    openReports: row.openReports,
+  }));
 }
 
 export async function listJobsDev(): Promise<
