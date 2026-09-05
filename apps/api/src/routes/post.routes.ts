@@ -1,3 +1,4 @@
+import type { VoteValue } from '@nocap/shared';
 import { Hono } from 'hono';
 import { ServiceError } from '../errors';
 import type { AuthEnv } from '../middleware/auth';
@@ -8,6 +9,7 @@ import {
   listJobsDev,
   listPosts,
 } from '../services/post.service';
+import { votePost } from '../services/vote.service';
 
 const post = new Hono<AuthEnv>();
 
@@ -48,6 +50,15 @@ post.get('/api/posts/:id', async (c) => {
   const id = Number(c.req.param('id'));
   if (!Number.isInteger(id)) throw new ServiceError(400, 'invalid post id');
   return c.json(await getPost(id));
+});
+
+post.post('/api/posts/:id/vote', async (c) => {
+  const user = requireUser(c);
+  const id = Number(c.req.param('id'));
+  if (!Number.isInteger(id)) throw new ServiceError(400, 'invalid post id');
+  const body = (await c.req.json()) as { value: number };
+  // JSON body is untyped at the boundary; votePost re-validates the domain
+  return c.json(await votePost(user.id, id, body.value as VoteValue));
 });
 
 post.get('/api/dev/jobs', async (c) => c.json(await listJobsDev()));
