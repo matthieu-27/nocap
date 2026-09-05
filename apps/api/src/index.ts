@@ -6,7 +6,9 @@ import { sessionMiddleware } from './middleware/auth';
 import commentRoutes from './routes/comment.routes';
 import domainRoutes from './routes/domain.routes';
 import healthRoutes from './routes/health.routes';
+import modRoutes from './routes/mod.routes';
 import postRoutes from './routes/post.routes';
+import reportRoutes from './routes/report.routes';
 
 const app = new Hono();
 
@@ -15,6 +17,8 @@ app.route('/', healthRoutes);
 app.route('/', domainRoutes);
 app.route('/', postRoutes);
 app.route('/', commentRoutes);
+app.route('/', reportRoutes);
+app.route('/', modRoutes);
 
 app.on(['POST', 'GET'], '/api/auth/*', (c) => auth.handler(c.req.raw));
 
