@@ -73,3 +73,12 @@ export function channelHandle(slug: string): string {
 export function userHandle(username: string): string {
   return `${SITE_HANDLE}/${username}`;
 }
+
+export interface UserProfileDto {
+  username: string;
+  role: string;
+  karma: number;
+  createdAt: string;
+  posts: PostDto[];
+  commentCount: number;
+}
