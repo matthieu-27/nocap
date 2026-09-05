@@ -141,7 +141,16 @@ export async function voteComment(
           ),
         );
     } else {
-      await tx.insert(commentVotes).values({ commentId, userId, value });
+      try {
+        await tx.insert(commentVotes).values({ commentId, userId, value });
+      } catch (err) {
+        // 23505 = unique_violation: a concurrent request inserted this
+        // (user, comment) vote between the existence read and the insert.
+        if ((err as { code?: string }).code === '23505') {
+          throw new ServiceError(409, 'vote already registered');
+        }
+        throw err;
+      }
     }
 
     const delta = value - previous;
