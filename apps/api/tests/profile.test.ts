@@ -47,11 +47,12 @@ describe('user profiles', () => {
     expect(response.status).toBe(200);
     const profile = (await response.json()) as {
       username: string;
-      karma: number;
+      swag: number;
       posts: { id: number }[];
       commentCount: number;
     };
     expect(profile.username).toBe('alice');
+    expect(profile.swag).toBe(0);
     expect(profile.posts.length).toBe(1);
     expect(profile.commentCount).toBe(1);
   });

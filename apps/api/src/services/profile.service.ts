@@ -56,9 +56,9 @@ export async function getUserProfile(
       .where(and(eq(comments.authorId, row.id), isNull(comments.deletedAt))),
   ]);
 
-  // No stored karma column survives the Better Auth swap — compute live until
+  // No stored swag column survives the Better Auth swap — compute live until
   // the Plan 2 recount worker owns a persisted value.
-  const karma =
+  const swag =
     Number(postKarma[0]?.value ?? 0) +
     Number(commentStats[0]?.commentKarma ?? 0);
 
@@ -79,7 +79,7 @@ export async function getUserProfile(
   return {
     username: row.username ?? row.name,
     role: row.role ?? 'user',
-    karma,
+    swag,
     createdAt: row.createdAt.toISOString(),
     posts: postRows.map(toDto),
     commentCount: commentStats[0]?.commentCount ?? 0,

@@ -77,7 +77,7 @@ export function userHandle(username: string): string {
 export interface UserProfileDto {
   username: string;
   role: string;
-  karma: number;
+  swag: number;
   createdAt: string;
   posts: PostDto[];
   commentCount: number;
