@@ -3,6 +3,7 @@ import { ServiceError } from './errors';
 import { auth } from './lib/auth';
 import { log } from './logger';
 import { sessionMiddleware } from './middleware/auth';
+import commentRoutes from './routes/comment.routes';
 import domainRoutes from './routes/domain.routes';
 import healthRoutes from './routes/health.routes';
 import postRoutes from './routes/post.routes';
@@ -13,6 +14,7 @@ app.use('*', sessionMiddleware);
 app.route('/', healthRoutes);
 app.route('/', domainRoutes);
 app.route('/', postRoutes);
+app.route('/', commentRoutes);
 
 app.on(['POST', 'GET'], '/api/auth/*', (c) => auth.handler(c.req.raw));
 
