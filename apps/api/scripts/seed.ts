@@ -13,6 +13,8 @@ import { votePost } from '../src/services/vote.service';
 // Dev-only fixture data: wipes every table and rebuilds an amusing but
 // realistic slice of the claim lifecycle, including open reports a mod
 // can resolve through the API (or the UI once it exists).
+// The login form takes an email, so each user's "login" is the email
+// prefix below. Passwords respect Better Auth's 10-character minimum.
 const SEED_PASSWORD = 'dev-seed-password-123';
 
 if (process.env.NODE_ENV === 'production') {
@@ -21,20 +23,57 @@ if (process.env.NODE_ENV === 'production') {
 
 interface SeedUser {
   username: string;
+  email: string;
+  password: string;
   role: 'user' | 'mod' | 'admin';
 }
 
 const USERS: SeedUser[] = [
-  { username: 'site_admin', role: 'admin' },
-  { username: 'modbot9000', role: 'mod' },
-  { username: 'claimslayer', role: 'user' },
-  { username: 'peer_reviewer', role: 'user' },
-  { username: 'captain_skeptic', role: 'user' },
-  { username: 'lurking_larry', role: 'user' },
-  { username: 'spammy_mcsell', role: 'user' },
+  {
+    username: 'admin',
+    email: 'admin@nocap.dev',
+    password: 'admin123ADMIN',
+    role: 'admin',
+  },
+  {
+    username: 'moderator',
+    email: 'moderator@nocap.dev',
+    password: 'Moderator123',
+    role: 'mod',
+  },
+  {
+    username: 'claimslayer',
+    email: 'claimslayer@example.com',
+    password: SEED_PASSWORD,
+    role: 'user',
+  },
+  {
+    username: 'peer_reviewer',
+    email: 'peer_reviewer@example.com',
+    password: SEED_PASSWORD,
+    role: 'user',
+  },
+  {
+    username: 'captain_skeptic',
+    email: 'captain_skeptic@example.com',
+    password: SEED_PASSWORD,
+    role: 'user',
+  },
+  {
+    username: 'lurking_larry',
+    email: 'lurking_larry@example.com',
+    password: SEED_PASSWORD,
+    role: 'user',
+  },
+  {
+    username: 'spammy_mcsell',
+    email: 'spammy_mcsell@example.com',
+    password: SEED_PASSWORD,
+    role: 'user',
+  },
 ];
 
-async function signUp(username: string): Promise<void> {
+async function signUp(seed: SeedUser): Promise<void> {
   // Better Auth rate-limits sign-ups with database storage; a seed batch
   // trips it, so clear the counter (dev script only, guarded above).
   await db.delete(rateLimit);
@@ -42,14 +81,14 @@ async function signUp(username: string): Promise<void> {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      username,
-      name: username,
-      email: `${username}@example.com`,
-      password: SEED_PASSWORD,
+      username: seed.username,
+      name: seed.username,
+      email: seed.email,
+      password: seed.password,
     }),
   });
   if (response.status !== 200) {
-    throw new Error(`signup failed for ${username}: ${response.status}`);
+    throw new Error(`signup failed for ${seed.username}: ${response.status}`);
   }
 }
 
@@ -68,7 +107,7 @@ async function main(): Promise<void> {
   await resetDb();
 
   for (const seed of USERS) {
-    await signUp(seed.username);
+    await signUp(seed);
     if (seed.role !== 'user') {
       await db
         .update(user)
@@ -77,8 +116,8 @@ async function main(): Promise<void> {
     }
   }
   const ids = {
-    admin: await userId('site_admin'),
-    mod: await userId('modbot9000'),
+    admin: await userId('admin'),
+    mod: await userId('moderator'),
     claimslayer: await userId('claimslayer'),
     reviewer: await userId('peer_reviewer'),
     skeptic: await userId('captain_skeptic'),
@@ -239,8 +278,11 @@ async function main(): Promise<void> {
     posts: Object.keys(posts).length,
     comments: commentCount,
     openReports: 4,
-    login: `any seeded user + ${SEED_PASSWORD}`,
-    mods: 'modbot9000 / site_admin',
+    logins: {
+      admin: 'admin@nocap.dev / admin123ADMIN',
+      moderator: 'moderator@nocap.dev / Moderator123',
+      others: `${USERS.length - 2} users @example.com / ${SEED_PASSWORD}`,
+    },
   });
   await closeDb();
 }
