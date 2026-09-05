@@ -22,8 +22,14 @@ post.get('/api/posts', async (c) => {
   if (!['day', 'week', 'all'].includes(windowParam)) {
     throw new ServiceError(400, 'window must be day, week, or all');
   }
-  const limit = Math.min(Number(c.req.query('limit') ?? 25), 100);
+  const limit = Number(c.req.query('limit') ?? 25);
+  if (!Number.isInteger(limit) || limit < 1 || limit > 100) {
+    throw new ServiceError(400, 'limit must be an integer between 1 and 100');
+  }
   const offset = Number(c.req.query('offset') ?? 0);
+  if (!Number.isInteger(offset) || offset < 0) {
+    throw new ServiceError(400, 'offset must be a non-negative integer');
+  }
   return c.json(
     await listPosts({
       domainSlug: c.req.query('domain') || undefined,
