@@ -2,6 +2,8 @@ import type { ReactNode } from 'react';
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from 'react-router';
 import './styles.css';
 
+import { Toaster } from '@/components/ui/sonner';
+
 // No-FOUC: runs before first paint; honors stored choice, falls back to system.
 const themeInit = `try{var t=localStorage.getItem('nocap-theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark')}}catch(e){/* ignore: storage unavailable (private mode); system theme applies */}`;
 
@@ -24,6 +26,7 @@ export function Layout({
       <body>
         {children}
         <ScrollRestoration />
+        <Toaster richColors position="bottom-right" />
         <Scripts />
       </body>
     </html>
