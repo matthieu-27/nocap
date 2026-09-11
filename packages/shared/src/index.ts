@@ -85,6 +85,8 @@ export interface UserProfileDto {
   username: string;
   role: string;
   swag: number;
+  postSwag: number;
+  commentSwag: number;
   createdAt: string;
   posts: PostDto[];
   commentCount: number;

@@ -214,11 +214,11 @@ YouTube ids are `[A-Za-z0-9_-]{11}` — reject anything else. TikTok ids are `[0
 
 - Produces: `postSwag: number` and `commentSwag: number` on `UserProfileDto` (Frame 06 right card "Karma breakdown"). `swag` stays the sum — one field it already computes from.
 
-- [ ] **Step 1:** Add both fields to the interface; in `getUserProfile`, `postSwag = Number(postKarma[0]?.value ?? 0)`, `commentSwag = Number(commentStats[0]?.commentKarma ?? 0)`, `swag = postSwag + commentSwag` (the current sum becomes the composition — no query changes).
+- [x] **Step 1:** Add both fields to the interface; in `getUserProfile`, `postSwag = Number(postKarma[0]?.value ?? 0)`, `commentSwag = Number(commentStats[0]?.commentKarma ?? 0)`, `swag = postSwag + commentSwag` (the current sum becomes the composition — no query changes).
 
-- [ ] **Step 2: Tests** — user with posts and comments → split sums add to `swag`; user with nothing → `0/0/0`; comments-only user → `postSwag 0`. (Seed users cover all three cases.)
+- [x] **Step 2: Tests** — user with posts and comments → split sums add to `swag`; user with nothing → `0/0/0`; comments-only user → `postSwag 0`. (Seed users cover all three cases.)
 
-- [ ] **Step 3: Verify + commit** — `bun run check`, `bun test` (API suite — Bun runtime, not vitest). Commit: `feat: post and comment swag breakdown on user profiles`.
+- [x] **Step 3: Verify + commit** — `bun run check`, `bun test` (API suite — Bun runtime, not vitest). Commit: `feat: post and comment swag breakdown on user profiles`.
 
 ---
 

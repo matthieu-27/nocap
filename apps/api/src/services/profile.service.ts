@@ -56,11 +56,11 @@ export async function getUserProfile(
       .where(and(eq(comments.authorId, row.id), isNull(comments.deletedAt))),
   ]);
 
+  const postSwag = Number(postKarma[0]?.value ?? 0);
+  const commentSwag = Number(commentStats[0]?.commentKarma ?? 0);
   // No stored swag column survives the Better Auth swap — compute live until
   // the Plan 2 recount worker owns a persisted value.
-  const swag =
-    Number(postKarma[0]?.value ?? 0) +
-    Number(commentStats[0]?.commentKarma ?? 0);
+  const swag = postSwag + commentSwag;
 
   const toDto = (post: (typeof postRows)[number]): PostDto => ({
     id: post.id,
@@ -80,6 +80,8 @@ export async function getUserProfile(
     username: row.username ?? row.name,
     role: row.role ?? 'user',
     swag,
+    postSwag,
+    commentSwag,
     createdAt: row.createdAt.toISOString(),
     posts: postRows.map(toDto),
     commentCount: commentStats[0]?.commentCount ?? 0,
