@@ -1,19 +1,23 @@
-import type { DomainDto } from '@nocap/shared';
+import type { DomainDto, SessionUser } from '@nocap/shared';
 import { channelHandle } from '@nocap/shared';
 import { Link } from 'react-router';
 
 import { cn } from '@/lib/utils';
 
+import { CreateChannelDialog } from './CreateChannelDialog';
+import { Badge } from './ui/badge';
 import { ScrollArea } from './ui/scroll-area';
 
 interface ChannelSidebarProps {
   domains: DomainDto[];
   activeSlug: string | null;
+  user: SessionUser | null;
 }
 
 export function ChannelSidebar({
   domains,
   activeSlug,
+  user,
 }: ChannelSidebarProps): React.ReactElement {
   return (
     <aside className="flex w-60 shrink-0 flex-col border-sidebar-border bg-sidebar text-sidebar-foreground">
@@ -42,6 +46,12 @@ export function ChannelSidebar({
           )}
         </nav>
       </ScrollArea>
+      {user !== null && (
+        <div className="flex items-center gap-2 border-t border-sidebar-border px-2 py-2">
+          <CreateChannelDialog />
+          <Badge variant="outline">3 max</Badge>
+        </div>
+      )}
       <div className="border-t border-sidebar-border p-4">
         <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
           Legal

@@ -1,18 +1,27 @@
-import { Link } from 'react-router';
+import type { ReactElement } from 'react';
 
-import { Button } from '@/components/ui/button';
+import { FeedControls } from '@/components/FeedControls';
+import { FeedList } from '@/components/FeedList';
+import { type FeedPage, loadFeedPage } from '@/lib/feed';
 
-export default function HomeRoute(): React.ReactElement {
+import type { Route } from './+types/home';
+
+export async function loader({ request }: Route.LoaderArgs): Promise<FeedPage> {
+  return loadFeedPage(request);
+}
+
+export default function HomeRoute({
+  loaderData,
+}: Route.ComponentProps): ReactElement {
   return (
-    <section className="p-6">
-      <h1 className="text-2xl font-bold">The feed is next</h1>
-      <p className="mt-2 max-w-xl text-muted-foreground">
-        Posts, votes, and comments arrive with the content plan — the API
-        endpoints they need are the next backend milestone. Meanwhile:
-      </p>
-      <Button asChild className="mt-4">
-        <Link to="/signup">Create an account</Link>
-      </Button>
+    <section className="flex flex-col gap-4 p-4 md:p-6">
+      <FeedControls sort={loaderData.sort} window={loaderData.window} />
+      <FeedList
+        posts={loaderData.posts}
+        sort={loaderData.sort}
+        window={loaderData.window}
+        offset={loaderData.offset}
+      />
     </section>
   );
 }

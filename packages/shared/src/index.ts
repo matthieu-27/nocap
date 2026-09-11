@@ -133,7 +133,9 @@ const YOUTUBE_ID_RE = /^[A-Za-z0-9_-]{11}$/;
 
 const TIKTOK_HOSTS = new Set(['tiktok.com', 'www.tiktok.com', 'm.tiktok.com']);
 
-function toUrl(url: string): URL | null {
+/** Parses without throwing — callers treat malformed URLs as null so the
+ * wire boundary never turns bad input into a 500. */
+export function toUrl(url: string): URL | null {
   try {
     return new URL(url);
   } catch {
