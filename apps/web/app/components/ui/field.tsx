@@ -190,6 +190,9 @@ function FieldError({
 }: React.ComponentProps<'div'> & {
   errors?: Array<{ message?: string } | undefined>;
 }) {
+  // Registry primitive (shadcn field): FieldError folds four render paths
+  // into one memo.
+  // fallow-ignore-next-line complexity
   const content = useMemo(() => {
     if (children) {
       return children;

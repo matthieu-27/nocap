@@ -13,30 +13,49 @@ import { votePost } from '../services/vote.service';
 
 const post = new Hono<AuthEnv>();
 
-post.get('/api/posts', async (c) => {
-  const sortParam = c.req.query('sort') ?? 'hot';
-  if (!['hot', 'new', 'top'].includes(sortParam)) {
+// Feed query params are untyped at the boundary; each parser owns one
+// parameter's domain rules so the route handler stays flat (the 400 paths
+// are pinned by apps/api/tests/post.test.ts).
+function parseFeedSort(raw: string | undefined): 'hot' | 'new' | 'top' {
+  const sort = raw ?? 'hot';
+  if (sort !== 'hot' && sort !== 'new' && sort !== 'top') {
     throw new ServiceError(400, 'sort must be hot, new, or top');
   }
-  const windowParam = c.req.query('window') ?? 'all';
-  if (!['day', 'week', 'all'].includes(windowParam)) {
+  return sort;
+}
+
+function parseFeedWindow(raw: string | undefined): 'day' | 'week' | 'all' {
+  const window = raw ?? 'all';
+  if (window !== 'day' && window !== 'week' && window !== 'all') {
     throw new ServiceError(400, 'window must be day, week, or all');
   }
-  const limit = Number(c.req.query('limit') ?? 25);
+  return window;
+}
+
+function parseFeedLimit(raw: string | undefined): number {
+  const limit = Number(raw ?? 25);
   if (!Number.isInteger(limit) || limit < 1 || limit > 100) {
     throw new ServiceError(400, 'limit must be an integer between 1 and 100');
   }
-  const offset = Number(c.req.query('offset') ?? 0);
+  return limit;
+}
+
+function parseFeedOffset(raw: string | undefined): number {
+  const offset = Number(raw ?? 0);
   if (!Number.isInteger(offset) || offset < 0) {
     throw new ServiceError(400, 'offset must be a non-negative integer');
   }
+  return offset;
+}
+
+post.get('/api/posts', async (c) => {
   return c.json(
     await listPosts({
       domainSlug: c.req.query('domain') || undefined,
-      sort: sortParam as 'hot' | 'new' | 'top',
-      window: windowParam as 'day' | 'week' | 'all',
-      limit,
-      offset,
+      sort: parseFeedSort(c.req.query('sort')),
+      window: parseFeedWindow(c.req.query('window')),
+      limit: parseFeedLimit(c.req.query('limit')),
+      offset: parseFeedOffset(c.req.query('offset')),
       viewerId: c.var.user?.id ?? null,
     }),
   );
