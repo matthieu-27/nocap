@@ -1,7 +1,7 @@
-import type { ModPostDto, PostDto } from '@nocap/shared';
-import { and, count, desc, eq, gte, isNull, sql } from 'drizzle-orm';
+import type { ModPostDto, PostDto, VoteValue } from '@nocap/shared';
+import { and, count, desc, eq, gte, inArray, isNull, sql } from 'drizzle-orm';
 import { db } from '../db/client';
-import { domains, jobs, posts, reports, user } from '../db/schema';
+import { domains, jobs, posts, reports, user, votes } from '../db/schema';
 import { ServiceError } from '../errors';
 
 const WINDOW_DAYS = { day: 1, week: 7 } as const;
@@ -35,6 +35,41 @@ function toDto(row: PostRow): PostDto {
     score: row.score,
     createdAt: row.createdAt.toISOString(),
   };
+}
+
+// Session-scoped read: merge the viewer's own vote into each post so the
+// web can render the vote arrows in their active state. Anonymous callers
+// skip the merge — the field stays absent.
+async function attachViewerVotes(
+  postDtos: PostDto[],
+  viewerId: number | null,
+): Promise<PostDto[]> {
+  if (viewerId === null || postDtos.length === 0) {
+    return postDtos;
+  }
+  const voteRows = await db
+    .select({ postId: votes.postId, value: votes.value })
+    .from(votes)
+    .where(
+      and(
+        eq(votes.userId, viewerId),
+        inArray(
+          votes.postId,
+          postDtos.map((dto) => dto.id),
+        ),
+      ),
+    );
+  // The smallint column only ever holds a service-validated vote value.
+  const byPostId = new Map<number, VoteValue>(
+    voteRows.map((row): [number, VoteValue] => [
+      row.postId,
+      row.value as VoteValue,
+    ]),
+  );
+  return postDtos.map((dto) => ({
+    ...dto,
+    viewerVote: byPostId.get(dto.id) ?? null,
+  }));
 }
 
 const postColumns = {
@@ -105,6 +140,7 @@ export async function listPosts(options: {
   window?: 'day' | 'week' | 'all';
   limit: number;
   offset: number;
+  viewerId?: number | null;
 }): Promise<PostDto[]> {
   const conditions = [isNull(posts.deletedAt)];
   if (options.domainSlug) {
@@ -133,10 +169,13 @@ export async function listPosts(options: {
     .limit(options.limit)
     .offset(options.offset);
 
-  return rows.map(toDto);
+  return attachViewerVotes(rows.map(toDto), options.viewerId ?? null);
 }
 
-export async function getPost(postId: number): Promise<PostDto> {
+export async function getPost(
+  postId: number,
+  viewerId: number | null = null,
+): Promise<PostDto> {
   const rows = await db
     .select(postColumns)
     .from(posts)
@@ -147,7 +186,9 @@ export async function getPost(postId: number): Promise<PostDto> {
 
   const row = rows[0];
   if (!row) throw new ServiceError(404, 'post not found');
-  return toDto(row);
+  const [dto] = await attachViewerVotes([toDto(row)], viewerId);
+  // attach preserves length; the fallback only satisfies the type checker
+  return dto ?? toDto(row);
 }
 
 // Mod-facing listing: includes soft-deleted posts and counts open reports.

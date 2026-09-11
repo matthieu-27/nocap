@@ -37,6 +37,7 @@ post.get('/api/posts', async (c) => {
       window: windowParam as 'day' | 'week' | 'all',
       limit,
       offset,
+      viewerId: c.var.user?.id ?? null,
     }),
   );
 });
@@ -55,7 +56,7 @@ post.post('/api/posts', async (c) => {
 post.get('/api/posts/:id', async (c) => {
   const id = Number(c.req.param('id'));
   if (!Number.isInteger(id)) throw new ServiceError(400, 'invalid post id');
-  return c.json(await getPost(id));
+  return c.json(await getPost(id, c.var.user?.id ?? null));
 });
 
 post.post('/api/posts/:id/vote', async (c) => {

@@ -14,7 +14,7 @@ const comment = new Hono<AuthEnv>();
 comment.get('/api/posts/:id/comments', async (c) => {
   const id = Number(c.req.param('id'));
   if (!Number.isInteger(id)) throw new ServiceError(400, 'invalid post id');
-  return c.json(await listComments(id));
+  return c.json(await listComments(id, c.var.user?.id ?? null));
 });
 
 comment.post('/api/posts/:id/comments', async (c) => {

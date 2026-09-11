@@ -1,5 +1,5 @@
 import type { CommentDto, VoteValue } from '@nocap/shared';
-import { and, eq, isNull, sql } from 'drizzle-orm';
+import { and, eq, inArray, isNull, sql } from 'drizzle-orm';
 import { db } from '../db/client';
 import { comments, commentVotes, posts } from '../db/schema';
 import { ServiceError } from '../errors';
@@ -24,6 +24,41 @@ const TREE_QUERY = (postId: number) => sql`
   SELECT id, post_id, parent_id, body, score, created_at, depth, author FROM tree
   ORDER BY created_at ASC
 `;
+
+// Session-scoped read: merge the viewer's own comment vote so the web
+// renders comment arrows in their active state. Anonymous callers skip the
+// merge — the field stays absent.
+async function attachViewerVotes(
+  commentDtos: CommentDto[],
+  viewerId: number | null,
+): Promise<CommentDto[]> {
+  if (viewerId === null || commentDtos.length === 0) {
+    return commentDtos;
+  }
+  const voteRows = await db
+    .select({ commentId: commentVotes.commentId, value: commentVotes.value })
+    .from(commentVotes)
+    .where(
+      and(
+        eq(commentVotes.userId, viewerId),
+        inArray(
+          commentVotes.commentId,
+          commentDtos.map((dto) => dto.id),
+        ),
+      ),
+    );
+  // The smallint column only ever holds a service-validated vote value.
+  const byCommentId = new Map<number, VoteValue>(
+    voteRows.map((row): [number, VoteValue] => [
+      row.commentId,
+      row.value as VoteValue,
+    ]),
+  );
+  return commentDtos.map((dto) => ({
+    ...dto,
+    viewerVote: byCommentId.get(dto.id) ?? null,
+  }));
+}
 
 export async function createComment(
   userId: number,
@@ -65,17 +100,20 @@ export async function createComment(
   const commentId = inserted[0]?.id;
   if (!commentId) throw new ServiceError(500, 'comment insert failed');
 
-  const dto = (await listComments(postId)).find(
+  const dto = (await listComments(postId, userId)).find(
     (comment) => comment.id === commentId,
   );
   if (!dto) throw new ServiceError(500, 'comment vanished after insert');
   return dto;
 }
 
-export async function listComments(postId: number): Promise<CommentDto[]> {
+export async function listComments(
+  postId: number,
+  viewerId: number | null = null,
+): Promise<CommentDto[]> {
   // postgres-js execute returns untyped RowList; convert field by field
   const rows = await db.execute(TREE_QUERY(postId));
-  return rows.map((row) => {
+  const dtos = rows.map((row) => {
     return {
       id: Number(row.id),
       postId: Number(row.post_id),
@@ -90,6 +128,7 @@ export async function listComments(postId: number): Promise<CommentDto[]> {
       createdAt: new Date(String(row.created_at)).toISOString(),
     };
   });
+  return attachViewerVotes(dtos, viewerId);
 }
 
 export async function voteComment(

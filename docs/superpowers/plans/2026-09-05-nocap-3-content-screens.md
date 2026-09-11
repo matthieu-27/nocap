@@ -100,7 +100,7 @@ apps/web/app/
 
 - Produces: `PostEmbed` discriminated union (`YouTubeEmbed | TikTokEmbed | LinkEmbed`), `detectProvider(url) → ProviderId`, `isPostEmbed(value): value is PostEmbed` (narrows `PostDto.embed` which stays `unknown` at the wire boundary).
 
-- [ ] **Step 1: Append to `packages/shared/src/index.ts`**
+- [x] **Step 1: Append to `packages/shared/src/index.ts`**
 
 ```ts
 export interface YouTubeEmbed {
@@ -157,7 +157,7 @@ export function isPostEmbed(value: unknown): value is PostEmbed {
 }
 ```
 
-- [ ] **Step 2: Implement the two URL extractors** with this fixture table (each row = one test case in `index.test.ts`):
+- [x] **Step 2: Implement the two URL extractors** with this fixture table (each row = one test case in `index.test.ts`):
 
 | URL | videoId |
 | --- | --- |
@@ -173,9 +173,9 @@ export function isPostEmbed(value: unknown): value is PostEmbed {
 
 YouTube ids are `[A-Za-z0-9_-]{11}` — reject anything else. TikTok ids are `[0-9]{15,25}` on a `/video/` path.
 
-- [ ] **Step 3: Tests** — `detectProvider` mapping (one per row + link fallback), `isPostEmbed` accepting each variant and rejecting `null`, `{}`, wrong provider.
+- [x] **Step 3: Tests** — `detectProvider` mapping (one per row + link fallback), `isPostEmbed` accepting each variant and rejecting `null`, `{}`, wrong provider.
 
-- [ ] **Step 4: Verify + commit** — `bun run check`, `vitest run packages/shared`. Commit: `feat: embed vocabulary and provider detection in shared`.
+- [x] **Step 4: Verify + commit** — `bun run check`, `vitest run packages/shared`. Commit: `feat: embed vocabulary and provider detection in shared`.
 
 ---
 
@@ -191,15 +191,15 @@ YouTube ids are `[A-Za-z0-9_-]{11}` — reject anything else. TikTok ids are `[0
 
 - Produces: optional `viewerVote?: VoteValue | null` on `PostDto` and `CommentDto`. Anonymous → omitted-or-null; logged-in non-voter → `null`; voter → `1 | -1`. `ModPostDto` untouched (mods don't vote from the queue).
 
-- [ ] **Step 1: Shared types** — append `viewerVote?: VoteValue | null;` to both interfaces.
+- [x] **Step 1: Shared types** — append `viewerVote?: VoteValue | null;` to both interfaces.
 
-- [ ] **Step 2: Services take a viewer** — `listPosts({…, viewerId: number | null})` and `getPost(postId, viewerId = null)`: after the main select, when `viewerId !== null`, batch-query `votes` by `inArray(votes.postId, ids)` + `eq(votes.userId, viewerId)`, merge into DTOs (`row viewerVote ?? null`). `listComments(postId, viewerId = null)`: same against `commentVotes`. `createComment` returns the new comment with `viewerVote: null` (fresh comment, no votes).
+- [x] **Step 2: Services take a viewer** — `listPosts({…, viewerId: number | null})` and `getPost(postId, viewerId = null)`: after the main select, when `viewerId !== null`, batch-query `votes` by `inArray(votes.postId, ids)` + `eq(votes.userId, viewerId)`, merge into DTOs (`row viewerVote ?? null`). `listComments(postId, viewerId = null)`: same against `commentVotes`. `createComment` returns the new comment with `viewerVote: null` (fresh comment, no votes).
 
-- [ ] **Step 3: Routes thread the session** — every read route passes `c.var.user?.id ?? null`. `sessionMiddleware` already populates `c.var.user`; no middleware changes.
+- [x] **Step 3: Routes thread the session** — every read route passes `c.var.user?.id ?? null`. `sessionMiddleware` already populates `c.var.user`; no middleware changes.
 
-- [ ] **Step 4: Tests** (real PG, existing files): anonymous list → `viewerVote` null; vote 1 → list shows `1`; change to -1 → shows `-1`; vote 0 (remove) → back to null; comment vote same ladder. Keep every existing test passing (DTO field is optional — nothing breaks).
+- [x] **Step 4: Tests** (real PG, existing files): anonymous list → `viewerVote` null; vote 1 → list shows `1`; change to -1 → shows `-1`; vote 0 (remove) → back to null; comment vote same ladder. Keep every existing test passing (DTO field is optional — nothing breaks).
 
-- [ ] **Step 5: Verify + commit** — `bun run check`, `bun test` (the API suite runs under Bun — the root vitest config excludes `apps/api`). Commit: `feat: expose viewer vote on post and comment dtos`.
+- [x] **Step 5: Verify + commit** — `bun run check`, `bun test` (the API suite runs under Bun — the root vitest config excludes `apps/api`). Commit: `feat: expose viewer vote on post and comment dtos`.
 
 ---
 

@@ -20,6 +20,7 @@ export interface PostDto {
   embed: unknown | null;
   score: number;
   createdAt: string;
+  viewerVote?: VoteValue | null;
 }
 
 export interface CommentDto {
@@ -31,6 +32,7 @@ export interface CommentDto {
   body: string;
   score: number;
   createdAt: string;
+  viewerVote?: VoteValue | null;
 }
 
 export interface ModPostDto extends PostDto {
