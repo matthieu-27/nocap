@@ -12,6 +12,9 @@ type LoaderData =
   | { posts: ModPostDto[]; forbidden?: undefined }
   | { posts: null; forbidden: true };
 
+// Role-gate loader: three exit paths (posts, forbidden render, login
+// redirect) plus the rethrow — the branching IS the contract.
+// fallow-ignore-next-line complexity
 export async function loader({
   request,
 }: Route.LoaderArgs): Promise<LoaderData> {

@@ -19,6 +19,10 @@ export async function votePost(
     .limit(1);
   if (postExists.length === 0) throw new ServiceError(404, 'post not found');
 
+  // Plan-1 vote transaction: the 10-branch ladder (validate → exists →
+  // read → insert/update/delete → delta → score) is test-pinned; the
+  // sibling in comment.service.ts mirrors it per-table on purpose.
+  // fallow-ignore-next-line complexity
   return db.transaction(async (tx) => {
     const existingRows = await tx
       .select()
@@ -28,6 +32,9 @@ export async function votePost(
     const existing = existingRows[0];
     const previous = existing?.value ?? 0;
 
+    // The mirrored tail of the post/comment vote transaction (see
+    // comment.service.ts) — same ladder, different tables.
+    // fallow-ignore-next-line code-duplication
     if (value === 0) {
       await tx
         .delete(votes)

@@ -146,6 +146,9 @@ export async function voteComment(
     .limit(1);
   if (exists.length === 0) throw new ServiceError(404, 'comment not found');
 
+  // Plan-1 vote transaction, the comment twin of vote.service.ts — the
+  // branch ladder is test-pinned and mirrors the post version per-table.
+  // fallow-ignore-next-line complexity
   return db.transaction(async (tx) => {
     const existingRows = await tx
       .select()
@@ -160,6 +163,9 @@ export async function voteComment(
     const existing = existingRows[0];
     const previous = existing?.value ?? 0;
 
+    // Mirrored tail of the post-vote transaction (see vote.service.ts) —
+    // same ladder, different tables.
+    // fallow-ignore-next-line code-duplication
     if (value === 0) {
       await tx
         .delete(commentVotes)

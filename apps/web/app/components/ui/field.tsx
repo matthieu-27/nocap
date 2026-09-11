@@ -1,5 +1,8 @@
 import { cva, type VariantProps } from 'class-variance-authority';
 import type * as React from 'react';
+// Registry primitive (shadcn field): the exported family is intentionally
+// complete — members light up as screens consume them.
+// fallow-ignore-file unused-export
 import { useMemo } from 'react';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
