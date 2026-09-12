@@ -10,9 +10,9 @@ import {
   useRouteError,
 } from 'react-router';
 import './styles.css';
-
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/sonner';
+import { ThemeProvider } from '@/contexts/theme-provider';
 
 export function Layout({
   children,
@@ -30,10 +30,12 @@ export function Layout({
         <script src="/theme-init.js" blocking="render" />
       </head>
       <body>
-        {children}
-        <ScrollRestoration />
-        <Toaster richColors position="bottom-right" />
-        <Scripts />
+        <ThemeProvider defaultTheme="dark" storageKey="nocap-theme">
+          {children}
+          <ScrollRestoration />
+          <Toaster richColors position="bottom-right" />
+          <Scripts />
+        </ThemeProvider>
       </body>
     </html>
   );

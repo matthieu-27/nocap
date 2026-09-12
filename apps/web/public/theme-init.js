@@ -6,10 +6,12 @@
 // inline-JS string hacks in the React tree.
 try {
   const stored = window.localStorage.getItem('nocap-theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  // 'system' and no stored choice both follow the OS preference; only an
+  // explicit 'light' or 'dark' overrides it.
   if (
     stored === 'dark' ||
-    (stored === null &&
-      window.matchMedia('(prefers-color-scheme: dark)').matches)
+    ((stored === null || stored === 'system') && prefersDark)
   ) {
     document.documentElement.classList.add('dark');
   }
