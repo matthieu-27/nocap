@@ -1,3 +1,6 @@
+// Registry primitive (shadcn select): the exported family is intentionally
+// complete — members light up as screens consume them.
+// fallow-ignore-file unused-export
 'use client';
 
 import * as SelectPrimitive from '@radix-ui/react-select';

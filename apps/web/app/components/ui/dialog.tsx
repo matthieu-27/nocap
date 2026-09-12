@@ -1,3 +1,6 @@
+// Registry primitive (shadcn dialog): the exported family is intentionally
+// complete — members light up as screens consume them.
+// fallow-ignore-file unused-export
 'use client';
 
 import * as DialogPrimitive from '@radix-ui/react-dialog';

@@ -17,6 +17,10 @@ const ROLES = ['user', 'mod', 'admin'] as const;
 // never leak an unhandled union member into the UI. The id arrives as a
 // string even with serial PKs, hence the Number() coercion (the API
 // middleware does the same).
+// Boundary coercion: Better Auth's loose session shape → strict SessionUser.
+// The branches are the validation itself (role allowlist, id coercion,
+// username fallback) — plan-2 contract, test-pinned.
+// fallow-ignore-next-line complexity
 export function toSessionUser(
   user: {
     id: string | number;

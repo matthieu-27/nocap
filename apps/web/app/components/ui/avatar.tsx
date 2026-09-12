@@ -1,3 +1,6 @@
+// Registry primitive (shadcn avatar): the exported family is intentionally
+// complete — members light up as screens consume them.
+// fallow-ignore-file unused-export
 'use client';
 
 import * as AvatarPrimitive from '@radix-ui/react-avatar';

@@ -1,3 +1,6 @@
+// Registry primitive (shadcn tabs): the exported family is intentionally
+// complete — members light up as screens consume them.
+// fallow-ignore-file unused-export
 import * as TabsPrimitive from '@radix-ui/react-tabs';
 import { cva, type VariantProps } from 'class-variance-authority';
 import type * as React from 'react';

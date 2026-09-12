@@ -1,3 +1,6 @@
+// Registry primitive (shadcn scroll-area): the exported family is intentionally
+// complete — members light up as screens consume them.
+// fallow-ignore-file unused-export
 import * as ScrollAreaPrimitive from '@radix-ui/react-scroll-area';
 import type * as React from 'react';
 

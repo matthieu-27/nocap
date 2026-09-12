@@ -1,3 +1,6 @@
+// Registry primitive (shadcn dropdown-menu): the exported family is intentionally
+// complete — members light up as screens consume them.
+// fallow-ignore-file unused-export
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
 import { CheckIcon, ChevronRightIcon, CircleIcon } from 'lucide-react';
 import type * as React from 'react';

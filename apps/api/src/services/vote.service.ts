@@ -32,9 +32,6 @@ export async function votePost(
     const existing = existingRows[0];
     const previous = existing?.value ?? 0;
 
-    // The mirrored tail of the post/comment vote transaction (see
-    // comment.service.ts) — same ladder, different tables.
-    // fallow-ignore-next-line code-duplication
     if (value === 0) {
       await tx
         .delete(votes)
@@ -46,6 +43,9 @@ export async function votePost(
         .where(and(eq(votes.postId, postId), eq(votes.userId, userId)));
     } else {
       try {
+        // Mirrored tail of the comment vote transaction (comment.service.ts)
+        // — same ladder, different tables.
+        // fallow-ignore-next-line code-duplication
         await tx.insert(votes).values({ postId, userId, value });
       } catch (err) {
         // 23505 = unique_violation: a concurrent request inserted this

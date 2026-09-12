@@ -1,3 +1,6 @@
+// Registry primitive (shadcn card): the exported family is intentionally
+// complete — members light up as screens consume them.
+// fallow-ignore-file unused-export
 import type * as React from 'react';
 
 import { cn } from '@/lib/utils';

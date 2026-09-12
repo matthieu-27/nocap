@@ -1,3 +1,6 @@
+// Registry primitive (shadcn button): the exported family is intentionally
+// complete — members light up as screens consume them.
+// fallow-ignore-file unused-export
 import { Slot } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';
 import type * as React from 'react';

@@ -78,6 +78,9 @@ post.get('/api/posts/:id', async (c) => {
   return c.json(await getPost(id, c.var.user?.id ?? null));
 });
 
+// Hono route boilerplate (requireUser + id parse + body read) mirrors the
+// comment routes; the repetition is the route table's legibility.
+// fallow-ignore-next-line code-duplication
 post.post('/api/posts/:id/vote', async (c) => {
   const user = requireUser(c);
   const id = Number(c.req.param('id'));
