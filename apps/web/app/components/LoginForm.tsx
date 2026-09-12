@@ -1,23 +1,15 @@
 import { type FormEvent, useState } from 'react';
 import { Link } from 'react-router';
-import { Alert, AlertDescription } from './ui/alert';
-import { Button } from './ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from './ui/card';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
+
+import { AuthCard } from './AuthCard';
+import { AuthField } from './AuthField';
 
 export interface LoginInput {
   email: string;
   password: string;
 }
 
-export interface LoginResult {
+interface LoginResult {
   ok: boolean;
   error?: string;
 }
@@ -52,54 +44,37 @@ export function LoginForm({
   }
 
   return (
-    <Card className="w-full max-w-sm">
-      <CardHeader className="text-center">
-        <CardTitle className="text-xl">Log in</CardTitle>
-        <CardDescription>Enter your email and password below</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form
-          onSubmit={handleSubmit}
-          className="flex flex-col gap-3"
-          noValidate
-        >
-          {error && (
-            <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              placeholder="you@example.com"
-              required
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              required
-            />
-          </div>
-          <Button type="submit" disabled={busy}>
-            Log in
-          </Button>
-        </form>
+    <AuthCard
+      title="Log in"
+      description="Enter your email and password below"
+      submitLabel="Log in"
+      busy={busy}
+      error={error}
+      onSubmit={handleSubmit}
+      footer={
         <p className="mt-4 text-center text-sm text-muted-foreground">
           No account yet?{' '}
           <Link to="/signup" className="font-semibold underline">
             Sign up
           </Link>
         </p>
-      </CardContent>
-    </Card>
+      }
+    >
+      <AuthField
+        id="email"
+        label="Email"
+        type="email"
+        value={email}
+        onChange={setEmail}
+        placeholder="you@example.com"
+      />
+      <AuthField
+        id="password"
+        label="Password"
+        type="password"
+        value={password}
+        onChange={setPassword}
+      />
+    </AuthCard>
   );
 }
