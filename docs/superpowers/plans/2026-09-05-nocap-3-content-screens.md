@@ -233,7 +233,7 @@ YouTube ids are `[A-Za-z0-9_-]{11}` — reject anything else. TikTok ids are `[0
 
 - Produces: standalone process `bun run worker` that drains `jobs` (`fetch_embed`), writes `posts.provider` + `posts.embed`, and periodically recomputes `posts.hot_rank`. Exports `runOnce(): Promise<{ processed: number; failed: number }>` for tests and one-shot runs. Adapter env overrides: `YOUTUBE_OEMBED_URL`, `TIKTOK_OEMBED_URL` (tests point them at a local fixture server).
 
-- [ ] **Step 1: Adapters — pure transforms.** Each adapter is two pure functions + zero network code:
+- [x] **Step 1: Adapters — pure transforms.** Each adapter is two pure functions + zero network code:
 
 ```ts
 // adapters/youtube.ts
@@ -247,7 +247,7 @@ export function linkEmbedFromHtml(html: string, url: string): PostEmbed | null
 
 TikTok mirrors YouTube (`tiktokEmbedFromOEmbed`), pulling `thumbnail_url` + `title` + `author_name`. Tests pin them against the fixture files (real JSON/HTML read from `fixtures/`).
 
-- [ ] **Step 2: hot.ts — pure hot-rank math.**
+- [x] **Step 2: hot.ts — pure hot-rank math.**
 
 ```ts
 // Reddit-style decay: score grows rank logarithmically, age decays it linearly.
@@ -261,7 +261,7 @@ export function hotRank(score: number, createdAt: Date, now: Date): number {
 
 Tests: fresh post rank ordering by score; age decay; negative scores; fixed `now` (pure function — pass dates in, no clocks inside).
 
-- [ ] **Step 3: worker/index.ts — claim loop.**
+- [x] **Step 3: worker/index.ts — claim loop.**
 
 ```ts
 const POLL_MS = Number(process.env.WORKER_POLL_MS ?? 5000);
@@ -296,11 +296,11 @@ while (true) {
 
 Use the app logger (`log.error`) for failures; `assert` calls carry reason strings.
 
-- [ ] **Step 4: worker.test.ts — real PG + real HTTP, no mocks.** `beforeAll`: start a `node:http` server serving `fixtures/youtube-oembed.json` at `/oembed?...`, `og-page.html` at `/page`; set `process.env.YOUTUBE_OEMBED_URL`/`TIKTOK_OEMBED_URL` to it. Test flow against real PG: `createPost` (youtu.be URL) → `runOnce()` → `getPost` shows `provider:'youtube'` + embed → `listJobsDev` shows job done. Second post with a URL that 404s on the fixture server → job `failed`, post fields untouched, no throw. Third post with generic URL → `link` embed from og tags. `resetDb` between tests (jobs included). Restore env in `afterAll`, close the server.
+- [x] **Step 4: worker.test.ts — real PG + real HTTP, no mocks.** `beforeAll`: start a `node:http` server serving `fixtures/youtube-oembed.json` at `/oembed?...`, `og-page.html` at `/page`; set `process.env.YOUTUBE_OEMBED_URL`/`TIKTOK_OEMBED_URL` to it. Test flow against real PG: `createPost` (youtu.be URL) → `runOnce()` → `getPost` shows `provider:'youtube'` + embed → `listJobsDev` shows job done. Second post with a URL that 404s on the fixture server → job `failed`, post fields untouched, no throw. Third post with generic URL → `link` embed from og tags. `resetDb` between tests (jobs included). Restore env in `afterAll`, close the server.
 
-- [ ] **Step 5: package.json script** — `"worker": "bun run src/worker/index.ts"` in `apps/api/package.json`.
+- [x] **Step 5: package.json script** — `"worker": "bun run src/worker/index.ts"` in `apps/api/package.json`.
 
-- [ ] **Step 6: Verify + commit** — `bun run check`, `bun test`. Commit: `feat: embed job worker with provider adapters and hot rank recompute`.
+- [x] **Step 6: Verify + commit** — `bun run check`, `bun test`. Commit: `feat: embed job worker with provider adapters and hot rank recompute`.
 
 ---
 
@@ -372,16 +372,16 @@ interface PostCardProps {
 
 - Produces: `<Embed post={PostDto} compact?: boolean />` rendering by post state: `provider` + `isPostEmbed(embed)` → provider view; else **pending/failed → link card** (never blocks, spec §Embeds). GDPR: no third-party iframe before a click, anywhere.
 
-- [ ] **Step 1: Views per state**
+- [x] **Step 1: Views per state**
   - `youtube`: thumbnail `img` inside `<AspectRatio ratio={16 / 9}>` (from `embed.thumbnailUrl`), play icon, hint `Load YouTube embed — iframe only loads after your click (GDPR)`; the click-to-load surface is a full-size `Button variant="secondary"` overlay — click swaps to `<iframe src={https://www.youtube-nocookie.com/embed/${embed.videoId}} allow="encrypted-media; picture-in-picture" allowFullScreen>`.
   - `tiktok`: same shape; iframe `https://www.tiktok.com/embed/v2/${embed.videoId}`.
   - `link`: `Card` with og title + image (when present) as an external link, `Badge` with the hostname.
   - pending (no provider/embed): link card built from `post.url` (hostname + full URL), plus `Waiting for embed…` hint when `compact` is false.
   - `compact` (feed rows): `AspectRatio` keeps 16:9 without height blowout; full mode scales the thumbnail hero per Frame 02.
 
-- [ ] **Step 2: Tests** — pending post renders hostname card and no iframe; youtube renders click-to-load button and NO iframe; after `userEvent.click`, iframe with `youtube-nocookie.com/embed/<videoId>` present; tiktok same; link post renders og title; malformed embed (`{provider:'youtube'}` without fields rejected by `isPostEmbed` path) falls back to link card.
+- [x] **Step 2: Tests** — pending post renders hostname card and no iframe; youtube renders click-to-load button and NO iframe; after `userEvent.click`, iframe with `youtube-nocookie.com/embed/<videoId>` present; tiktok same; link post renders og title; malformed embed (`{provider:'youtube'}` without fields rejected by `isPostEmbed` path) falls back to link card.
 
-- [ ] **Step 3: Verify + commit** — `bun run check`, `vitest run apps/web`. Commit: `feat: click to load embeds for youtube tiktok and link cards`.
+- [x] **Step 3: Verify + commit** — `bun run check`, `vitest run apps/web`. Commit: `feat: click to load embeds for youtube tiktok and link cards`.
 
 ---
 
@@ -425,17 +425,17 @@ interface PostCardProps {
 
 - Produces: Frame 02 — full-height post (hero embed, body, votes), comments below, `best / new` sort tabs, replies collapsible.
 
-- [ ] **Step 1: post.tsx loader** — parallel `apiFetch` of `/api/posts/:id` and `/api/posts/:id/comments` (both cookie-forwarded → `viewerVote` arrives server-rendered). 404 → error boundary.
+- [x] **Step 1: post.tsx loader** — parallel `apiFetch` of `/api/posts/:id` and `/api/posts/:id/comments` (both cookie-forwarded → `viewerVote` arrives server-rendered). 404 → error boundary.
 
-- [ ] **Step 2: post render** — breadcrumb via shadcn `Breadcrumb` (`BreadcrumbList` → `BreadcrumbItem` with `BreadcrumbLink` to the channel via `channelHandle`, `BreadcrumbSeparator`, post title as `BreadcrumbPage`), wide `PostCard`-shaped hero: VoteArrows, channel + provider badges, title, question line, `<Embed post full />` (hero thumbnail scale per frame), body paragraphs, meta + Share/Report. Voting here reuses the page-level handler (`apiJson POST /api/posts/:id/vote`, optimistic score from Task 6 contract).
+- [x] **Step 2: post render** — breadcrumb via shadcn `Breadcrumb` (`BreadcrumbList` → `BreadcrumbItem` with `BreadcrumbLink` to the channel via `channelHandle`, `BreadcrumbSeparator`, post title as `BreadcrumbPage`), wide `PostCard`-shaped hero: VoteArrows, channel + provider badges, title, question line, `<Embed post full />` (hero thumbnail scale per frame), body paragraphs, meta + Share/Report. Voting here reuses the page-level handler (`apiJson POST /api/posts/:id/vote`, optimistic score from Task 6 contract).
 
-- [ ] **Step 3: CommentComposer** — `Card` with a `Textarea` (`Add to the discussion — cite what you checked`) + `Button` per the frame; `parentId` optional for replies. Signed-out: the button is a `Button asChild` wrapping a `Link` to `/login`. Submit → `apiJson POST /api/posts/:id/comments` → `revalidate` → toast on 400 (`Comment must be 1-4000 characters`).
+- [x] **Step 3: CommentComposer** — `Card` with a `Textarea` (`Add to the discussion — cite what you checked`) + `Button` per the frame; `parentId` optional for replies. Signed-out: the button is a `Button asChild` wrapping a `Link` to `/login`. Submit → `apiJson POST /api/posts/:id/comments` → `revalidate` → toast on 400 (`Comment must be 1-4000 characters`).
 
-- [ ] **Step 4: CommentThread** — the API returns a flat oldest-first list with `depth`; render as tree: group by `parentId` into children maps, roots first, indent by `depth` with `Separator`/thread-line styling per frame. Each comment: `Avatar` + `AvatarFallback` initials (fallback is mandatory), `userHandle(author)`, meta, VoteArrows (compact, wired to `/api/comments/:id/vote` optimistic), body, Reply (toggles a `CommentComposer` with `parentId`), Report. Sort tabs `best | new` = client-side `Tabs` with `onValueChange` reordering the top-level list (children stay anchored to parents): `best` → score desc, `new` → createdAt asc (API order). Reply collapse: shadcn `Collapsible` per parent — `CollapsibleTrigger` shows the reply count, `CollapsibleContent` unfolds the children.
+- [x] **Step 4: CommentThread** — the API returns a flat oldest-first list with `depth`; render as tree: group by `parentId` into children maps, roots first, indent by `depth` with `Separator`/thread-line styling per frame. Each comment: `Avatar` + `AvatarFallback` initials (fallback is mandatory), `userHandle(author)`, meta, VoteArrows (compact, wired to `/api/comments/:id/vote` optimistic), body, Reply (toggles a `CommentComposer` with `parentId`), Report. Sort tabs `best | new` = client-side `Tabs` with `onValueChange` reordering the top-level list (children stay anchored to parents): `best` → score desc, `new` → createdAt asc (API order). Reply collapse: shadcn `Collapsible` per parent — `CollapsibleTrigger` shows the reply count, `CollapsibleContent` unfolds the children.
 
-- [ ] **Step 5: Tests** — CommentThread: nested fixture renders child under parent with indent, vote callbacks fire with ids, sort tabs reorder. CommentComposer: signed-out renders login link; signed-in submits body via stubbed fetch; rejects empty body before fetch.
+- [x] **Step 5: Tests** — CommentThread: nested fixture renders child under parent with indent, vote callbacks fire with ids, sort tabs reorder. CommentComposer: signed-out renders login link; signed-in submits body via stubbed fetch; rejects empty body before fetch.
 
-- [ ] **Step 6: Verify + commit** — `bun run check`, `vitest run apps/web`, `bun run typecheck` in apps/web. Commit: `feat: post detail with threaded comments and voting`.
+- [x] **Step 6: Verify + commit** — `bun run check`, `vitest run apps/web`, `bun run typecheck` in apps/web. Commit: `feat: post detail with threaded comments and voting`.
 
 ---
 
@@ -533,3 +533,4 @@ interface PostCardProps {
 
 - **Fallow audit (pre-T8 gate, `npx fallow audit --base main`):** Fixed — feed-query parser extraction (`post.routes.ts` CRAP 63.6 → flat handler), FieldError suppression syntax (reason lives on its own line — fallow tokenizes every word after the directive as an issue kind). Accepted with reasons — `field.tsx`/`spinner.tsx` unused files (their consumers land in T8), `isbot` unused dep (react-router typegen auto-reinstalls it — framework-required, never imported by app code), `comment.service.ts` row-mapper complexity + 4 clone groups (plan-1-inherited, test-pinned). Maintainability 90.8 (good); the remaining exit-1 findings are all accounted for above.
 - **Full-repo fallow scan (post-T8):** registry families (dropdown-menu, avatar, select, dialog, card, tabs, scroll-area, button, skeleton) carry file-level suppressions per the field/table precedent; the vestigial `routes` named export was removed; `toSessionUser` is suppressed as boundary coercion. Deferred: LoginForm/SignupForm 55-line clone family (plan-2 inherited, gate-excluded — extract shared auth form fields in a plan-2 polish pass).
+- **Fallow review (post-T9, whole-branch diff vs main):** Fixed — the registry's bare `cn` import in `breadcrumb.tsx` pointed at a real `cn@0.3.0` shim dependency (removed; breadcrumb now uses `@/lib/utils` like every other module), the youtube/tiktok adapter clone family (deduped through `adapters/oembed.ts` `mediaEmbedFromOEmbed`), and `BreadcrumbEllipsis` unused export (registry-family file-level suppression per the button precedent). Accepted with reasons — `isbot` (typegen reinstalls it, confirmed empirically), post.service/profile.service clone groups + feed-query duplication (plan-1 inherited), LoginForm/SignupForm clones (plan-2 deferred pass), PostRoute/fetchEmbed size-and-CRAP flags (single-frame page composition + per-provider dispatch; orchestration, not extractable logic). Informational — the 4 "decisions to make" and public-api-contract items are artifacts of reviewing the whole branch diff (deps like `@tanstack/react-table`, `sonner`, schema exports all landed in already-merged plans 1–2 or earlier tasks of this plan). Maintainability 92.4 (good, up from 90.8).
