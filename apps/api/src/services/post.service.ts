@@ -1,41 +1,12 @@
 import type { ModPostDto, PostDto, VoteValue } from '@nocap/shared';
-import { and, count, desc, eq, gte, inArray, isNull, sql } from 'drizzle-orm';
+import { and, count, desc, eq, gte, inArray, isNull } from 'drizzle-orm';
 import { db } from '../db/client';
 import { domains, jobs, posts, reports, user, votes } from '../db/schema';
 import { ServiceError } from '../errors';
+import { postColumns, postsJoinedQuery, toDto } from './postProjection';
 
 const WINDOW_DAYS = { day: 1, week: 7 } as const;
 const MOD_POSTS_LIMIT = 200;
-
-interface PostRow {
-  id: number;
-  domainId: number;
-  domainSlug: string;
-  author: string;
-  title: string;
-  body: string | null;
-  url: string;
-  provider: string | null;
-  embed: unknown;
-  score: number;
-  createdAt: Date;
-}
-
-function toDto(row: PostRow): PostDto {
-  return {
-    id: row.id,
-    domainId: row.domainId,
-    domainSlug: row.domainSlug,
-    author: row.author,
-    title: row.title,
-    body: row.body,
-    url: row.url,
-    provider: row.provider,
-    embed: row.embed,
-    score: row.score,
-    createdAt: row.createdAt.toISOString(),
-  };
-}
 
 // Session-scoped read: merge the viewer's own vote into each post so the
 // web can render the vote arrows in their active state. Anonymous callers
@@ -71,21 +42,6 @@ async function attachViewerVotes(
     viewerVote: byPostId.get(dto.id) ?? null,
   }));
 }
-
-const postColumns = {
-  id: posts.id,
-  domainId: posts.domainId,
-  domainSlug: domains.slug,
-  // username is nullable in the Better Auth table; name never is
-  author: sql<string>`coalesce(${user.username}, ${user.name})`,
-  title: posts.title,
-  body: posts.body,
-  url: posts.url,
-  provider: posts.provider,
-  embed: posts.embed,
-  score: posts.score,
-  createdAt: posts.createdAt,
-};
 
 export async function createPost(
   userId: number,
@@ -159,11 +115,7 @@ export async function listPosts(options: {
         ? desc(posts.score)
         : desc(posts.hotRank);
 
-  const rows = await db
-    .select(postColumns)
-    .from(posts)
-    .innerJoin(domains, eq(domains.id, posts.domainId))
-    .innerJoin(user, eq(user.id, posts.authorId))
+  const rows = await postsJoinedQuery()
     .where(and(...conditions))
     .orderBy(orderBy)
     .limit(options.limit)
@@ -176,11 +128,7 @@ export async function getPost(
   postId: number,
   viewerId: number | null = null,
 ): Promise<PostDto> {
-  const rows = await db
-    .select(postColumns)
-    .from(posts)
-    .innerJoin(domains, eq(domains.id, posts.domainId))
-    .innerJoin(user, eq(user.id, posts.authorId))
+  const rows = await postsJoinedQuery()
     .where(and(eq(posts.id, postId), isNull(posts.deletedAt)))
     .limit(1);
 
