@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import { timeAgo } from '@/lib/relative-time';
 import { cn } from '@/lib/utils';
 
+import { Embed } from './Embed';
 import { ReportDialog } from './ReportDialog';
 import { Badge, badgeVariants } from './ui/badge';
 import { Button } from './ui/button';
@@ -75,7 +76,7 @@ export function PostCard({
             </span>
             One question — Is this well-sourced?
           </p>
-          <PostLinkCard post={post} />
+          <Embed post={post} compact />
           <p className="flex flex-wrap items-center gap-1 text-xs text-muted-foreground">
             <span>by {userHandle(post.author)}</span>
             <span aria-hidden="true">·</span>
@@ -116,31 +117,4 @@ export function PostCard({
       />
     </Card>
   );
-}
-
-// Inline link-card fallback for posts whose embed job has not resolved yet
-// (the T4 worker drains those). The T7 <Embed> component replaces this slot
-// with click-to-load thumbnails.
-function PostLinkCard({ post }: { post: PostDto }): ReactElement {
-  const host = postHost(post.url);
-  return (
-    <a
-      href={post.url}
-      target="_blank"
-      rel="noreferrer"
-      className="flex flex-col gap-0.5 rounded-md border bg-muted/40 px-3 py-2 text-sm hover:bg-muted"
-    >
-      <span className="text-xs text-muted-foreground">{host}</span>
-      <span className="truncate text-foreground">{post.url}</span>
-    </a>
-  );
-}
-
-function postHost(url: string): string {
-  try {
-    return new URL(url).hostname;
-  } catch {
-    // Invalid urls fall back to the raw text — the API validates on write
-    return url;
-  }
 }
