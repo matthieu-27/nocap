@@ -1,7 +1,11 @@
-import { cn } from 'cn';
+// Registry primitive (shadcn breadcrumb): the exported family is intentionally
+// complete — members light up as screens consume them.
+// fallow-ignore-file unused-export
+
 import { ChevronRight, MoreHorizontal } from 'lucide-react';
 import { Slot } from 'radix-ui';
 import type * as React from 'react';
+import { cn } from '@/lib/utils';
 
 function Breadcrumb({ ...props }: React.ComponentProps<'nav'>) {
   return <nav aria-label="breadcrumb" data-slot="breadcrumb" {...props} />;
