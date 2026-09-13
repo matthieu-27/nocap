@@ -1,5 +1,7 @@
-import { type FormEvent, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router';
+
+import { useAuthSubmit } from '@/lib/use-auth-submit';
 
 import { AuthCard } from './AuthCard';
 import { AuthField } from './AuthField';
@@ -22,6 +24,16 @@ interface SignupFormProps {
 
 const USERNAME_RE = /^[a-zA-Z0-9_]{3,32}$/;
 
+function validateSignup({ username, password }: SignupInput): string | null {
+  if (!USERNAME_RE.test(username)) {
+    return 'Username must be 3-32 letters, digits, or underscores.';
+  }
+  if (password.length < 10) {
+    return 'Password must be at least 10 characters.';
+  }
+  return null;
+}
+
 export function SignupForm({
   onSubmit,
   onSuccess,
@@ -29,31 +41,12 @@ export function SignupForm({
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
-
-  async function handleSubmit(
-    event: FormEvent<HTMLFormElement>,
-  ): Promise<void> {
-    event.preventDefault();
-    setError(null);
-    if (!USERNAME_RE.test(username)) {
-      setError('Username must be 3-32 letters, digits, or underscores.');
-      return;
-    }
-    if (password.length < 10) {
-      setError('Password must be at least 10 characters.');
-      return;
-    }
-    setBusy(true);
-    const result = await onSubmit({ username, email, password });
-    setBusy(false);
-    if (!result.ok) {
-      setError(result.error ?? 'Signup failed.');
-      return;
-    }
-    onSuccess();
-  }
+  const { error, busy, handleSubmit } = useAuthSubmit<SignupInput>({
+    onSubmit,
+    onSuccess,
+    fallbackError: 'Signup failed.',
+    validate: validateSignup,
+  });
 
   return (
     <AuthCard
@@ -62,7 +55,9 @@ export function SignupForm({
       submitLabel="Sign up"
       busy={busy}
       error={error}
-      onSubmit={handleSubmit}
+      onSubmit={(event) => {
+        void handleSubmit(event, { username, email, password });
+      }}
       footer={
         <>
           <p className="mt-4 text-center text-sm text-muted-foreground">

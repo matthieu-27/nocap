@@ -1,5 +1,7 @@
-import { type FormEvent, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router';
+
+import { useAuthSubmit } from '@/lib/use-auth-submit';
 
 import { AuthCard } from './AuthCard';
 import { AuthField } from './AuthField';
@@ -25,23 +27,11 @@ export function LoginForm({
 }: LoginFormProps): React.ReactElement {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
-
-  async function handleSubmit(
-    event: FormEvent<HTMLFormElement>,
-  ): Promise<void> {
-    event.preventDefault();
-    setError(null);
-    setBusy(true);
-    const result = await onSubmit({ email, password });
-    setBusy(false);
-    if (!result.ok) {
-      setError(result.error ?? 'Login failed.');
-      return;
-    }
-    onSuccess();
-  }
+  const { error, busy, handleSubmit } = useAuthSubmit<LoginInput>({
+    onSubmit,
+    onSuccess,
+    fallbackError: 'Login failed.',
+  });
 
   return (
     <AuthCard
@@ -50,7 +40,9 @@ export function LoginForm({
       submitLabel="Log in"
       busy={busy}
       error={error}
-      onSubmit={handleSubmit}
+      onSubmit={(event) => {
+        void handleSubmit(event, { email, password });
+      }}
       footer={
         <p className="mt-4 text-center text-sm text-muted-foreground">
           No account yet?{' '}
