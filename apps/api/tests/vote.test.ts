@@ -1,4 +1,7 @@
 import { beforeEach, describe, expect, it } from 'bun:test';
+import { eq } from 'drizzle-orm';
+import { db } from '../src/db/client';
+import { votes } from '../src/db/schema';
 import { resetDb } from '../src/db/testSetup';
 import { app } from '../src/index';
 
@@ -120,6 +123,23 @@ describe('post votes', () => {
     expect(
       ((await detail.json()) as { viewerVote: number | null }).viewerVote,
     ).toBe(1);
+  });
+
+  it('a corrupted vote row reads as no vote instead of an invalid viewer vote', async () => {
+    const alice = await signupCookie('alice');
+    const postId = await seedPost(alice);
+
+    await vote(alice, postId, 1);
+    // Simulate an out-of-range value that bypassed the write path —
+    // the read must not trust the smallint column.
+    await db.update(votes).set({ value: 7 }).where(eq(votes.postId, postId));
+
+    const detail = await app.request(`/api/posts/${postId}`, {
+      headers: { Cookie: alice },
+    });
+    expect(
+      ((await detail.json()) as { viewerVote: number | null }).viewerVote,
+    ).toBeNull();
   });
 
   it('viewer vote follows switches and removal', async () => {

@@ -30,13 +30,15 @@ async function attachViewerVotes(
         ),
       ),
     );
-  // The smallint column only ever holds a service-validated vote value.
-  const byPostId = new Map<number, VoteValue>(
-    voteRows.map((row): [number, VoteValue] => [
-      row.postId,
-      row.value as VoteValue,
-    ]),
-  );
+  // Read-side validation: the write path only stores -1/0/1, but the smallint
+  // column cannot enforce that itself, so an out-of-range row degrades to
+  // "no vote" instead of leaking into PostDto.
+  const byPostId = new Map<number, VoteValue>();
+  for (const row of voteRows) {
+    if (row.value === 1 || row.value === -1 || row.value === 0) {
+      byPostId.set(row.postId, row.value);
+    }
+  }
   return postDtos.map((dto) => ({
     ...dto,
     viewerVote: byPostId.get(dto.id) ?? null,
