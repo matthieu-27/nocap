@@ -66,8 +66,12 @@ export function FeedControls({
       <Tabs value={sort}>
         <TabsList>
           {SORT_TABS.map((tab) => (
-            <TabsTrigger key={tab.value} value={tab.value} asChild>
-              <Link to={feedHref(tab.value, window)}>{tab.label}</Link>
+            <TabsTrigger
+              key={tab.value}
+              value={tab.value}
+              render={<Link to={feedHref(tab.value, window)} />}
+            >
+              {tab.label}
             </TabsTrigger>
           ))}
         </TabsList>
