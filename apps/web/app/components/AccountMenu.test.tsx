@@ -15,8 +15,9 @@ describe('AccountMenu', () => {
   // vitest.setup.ts) must unmount an open Radix portal itself — wiping
   // body.innerHTML first makes React's removeChild throw.
 
-  // The buttons are shadcn `Button asChild` + react-router `Link`, so they
-  // render as anchors: their accessible role is `link`, not `button`.
+  // The CTA "buttons" are react-router `Link`s wearing shadcn `buttonVariants`
+  // classes (Base UI Button renders a native <button>, links keep link
+  // semantics), so their accessible role is `link`, not `button`.
   it('logged-out visitor sees Log in and Sign up buttons', () => {
     render(
       <MemoryRouter>

@@ -3,7 +3,7 @@ import { userHandle } from '@nocap/shared';
 import { LogOut } from 'lucide-react';
 import { Link } from 'react-router';
 import { Avatar, AvatarFallback } from './ui/avatar';
-import { Button } from './ui/button';
+import { Button, buttonVariants } from './ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,12 +25,12 @@ export function AccountMenu({
   if (!user) {
     return (
       <div className="flex items-center gap-2">
-        <Button variant="ghost" asChild>
-          <Link to="/login">Log in</Link>
-        </Button>
-        <Button asChild>
-          <Link to="/signup">Sign up</Link>
-        </Button>
+        <Link to="/login" className={buttonVariants({ variant: 'ghost' })}>
+          Log in
+        </Link>
+        <Link to="/signup" className={buttonVariants()}>
+          Sign up
+        </Link>
       </div>
     );
   }

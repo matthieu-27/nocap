@@ -15,7 +15,7 @@ import {
   feedHref,
 } from './FeedControls';
 import { PostCard } from './PostCard';
-import { Button } from './ui/button';
+import { buttonVariants } from './ui/button';
 import {
   Empty,
   EmptyContent,
@@ -114,9 +114,9 @@ export function FeedList({
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
-          <Button asChild>
-            <Link to="/submit">Post a claim</Link>
-          </Button>
+          <Link to="/submit" className={buttonVariants()}>
+            Post a claim
+          </Link>
         </EmptyContent>
       </Empty>
     );
@@ -150,20 +150,22 @@ export function FeedList({
         aria-label="feed pagination"
       >
         {offset > 0 ? (
-          <Button asChild variant="outline" size="sm">
-            <Link to={feedHref(sort, window, offset - FEED_PAGE_SIZE)}>
-              Newer
-            </Link>
-          </Button>
+          <Link
+            to={feedHref(sort, window, offset - FEED_PAGE_SIZE)}
+            className={buttonVariants({ variant: 'outline', size: 'sm' })}
+          >
+            Newer
+          </Link>
         ) : (
           <span />
         )}
         {posts.length === FEED_PAGE_SIZE ? (
-          <Button asChild variant="outline" size="sm">
-            <Link to={feedHref(sort, window, offset + FEED_PAGE_SIZE)}>
-              Load more
-            </Link>
-          </Button>
+          <Link
+            to={feedHref(sort, window, offset + FEED_PAGE_SIZE)}
+            className={buttonVariants({ variant: 'outline', size: 'sm' })}
+          >
+            Load more
+          </Link>
         ) : null}
       </nav>
     </div>

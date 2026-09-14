@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import { Link } from 'react-router';
 
-import { Button } from './ui/button';
+import { buttonVariants } from './ui/button';
 import { Tabs, TabsList, TabsTrigger } from './ui/tabs';
 
 export type FeedSort = 'hot' | 'new' | 'top';
@@ -74,14 +74,16 @@ export function FeedControls({
       </Tabs>
       {sort === 'top' &&
         WINDOW_CHIPS.map((chip) => (
-          <Button
+          <Link
             key={chip.value}
-            asChild
-            size="sm"
-            variant={chip.value === window ? 'secondary' : 'ghost'}
+            to={feedHref('top', chip.value)}
+            className={buttonVariants({
+              size: 'sm',
+              variant: chip.value === window ? 'secondary' : 'ghost',
+            })}
           >
-            <Link to={feedHref('top', chip.value)}>{chip.label}</Link>
-          </Button>
+            {chip.label}
+          </Link>
         ))}
     </div>
   );

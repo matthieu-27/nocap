@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import { ApiError } from '@/lib/api';
 import { apiJson } from '@/lib/browser-api';
 
-import { Button } from './ui/button';
+import { Button, buttonVariants } from './ui/button';
 import {
   Card,
   CardContent,
@@ -66,9 +66,9 @@ export function CommentComposer({
           <CardTitle className="text-base">Join the discussion</CardTitle>
         </CardHeader>
         <CardContent>
-          <Button asChild>
-            <Link to="/login">Log in to comment</Link>
-          </Button>
+          <Link to="/login" className={buttonVariants()}>
+            Log in to comment
+          </Link>
         </CardContent>
       </Card>
     );

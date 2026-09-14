@@ -10,7 +10,7 @@ import {
   useRouteError,
 } from 'react-router';
 import './styles.css';
-import { Button } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/sonner';
 import { ThemeProvider } from '@/contexts/theme-provider';
 
@@ -59,9 +59,9 @@ export function ErrorBoundary(): React.ReactElement {
     <section className="flex min-h-[60vh] flex-col items-center justify-center gap-3 p-16 text-center">
       <h1 className="text-4xl font-bold">{status}</h1>
       <p className="text-muted-foreground">{message}</p>
-      <Button asChild className="mt-2">
-        <Link to="/">Back to the feed</Link>
-      </Button>
+      <Link to="/" className={buttonVariants({ className: 'mt-2' })}>
+        Back to the feed
+      </Link>
     </section>
   );
 }
