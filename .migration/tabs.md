@@ -10,7 +10,7 @@
   - Added `activateOnFocus` on `TabsList` — Base UI 1.6+ defaults `List` to manual tab activation, inverting Radix's `activationMode="automatic"` default. Set explicitly to preserve the original click/arrow-key auto-activate behavior this app already relied on.
   - Dropped the redundant manual `data-orientation={orientation}` prop on `Tabs` — Base UI's `Root` sets `data-orientation` itself from the `orientation` prop, same as Radix did.
   - Leftover scan: `grep -n "radix-ui\|@radix-ui" tabs.tsx` → no matches, clean.
-- `apps/web/app/components/FeedControls.tsx:69-74` — `TabsTrigger` consumer used `asChild` wrapping a `<Link>`; converted to `render={<Link to={...} />}` with `{tab.label}` as the component's `children` (Base UI merges it into the rendered element).
+- `apps/web/app/components/FeedControls.tsx:69-75` — `TabsTrigger` consumer used `asChild` wrapping a `<Link>`; converted to `render={<Link to={...} />}` with `{tab.label}` as the component's `children` (Base UI merges it into the rendered element). Also set `nativeButton={false}` — `Tabs.Tab` defaults to `nativeButton: true` and warns at runtime when its `render` target isn't a real `<button>` (caught by the existing test suite's console output, not by typecheck).
 
 ## Left alone
 

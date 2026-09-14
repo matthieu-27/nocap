@@ -69,6 +69,7 @@ export function FeedControls({
             <TabsTrigger
               key={tab.value}
               value={tab.value}
+              nativeButton={false}
               render={<Link to={feedHref(tab.value, window)} />}
             >
               {tab.label}
