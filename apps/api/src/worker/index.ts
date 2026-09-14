@@ -16,11 +16,16 @@ import { hotRank } from './hot';
 
 const POLL_MS = Number(process.env.WORKER_POLL_MS ?? 5000);
 const HOT_EVERY_MS = Number(process.env.WORKER_HOT_EVERY_MS ?? 60000);
-// One worker process by design (student budget): the atomic single-row claim
-// below is safe even if two ran, but recomputeHot would double its work.
+// One worker process by design (student budget). The claim below stays atomic
+// even if two ran, but recomputeHot and the embed fetches would double their
+// work, so main() holds a PG advisory lock for the process lifetime and a
+// second instance exits at startup instead.
 const BATCH_CAP = 10;
 const HOT_WINDOW_DAYS = 30;
 const FETCH_TIMEOUT_MS = 10_000;
+// Arbitrary dedicated key for the embed-worker lock (pg_try_advisory_lock
+// keys share one namespace with everything else in the database).
+const SINGLETON_LOCK_KEY = 628_207_001;
 
 interface ClaimedJob {
   id: number;
@@ -191,10 +196,28 @@ export async function recomputeHot(now: Date = new Date()): Promise<void> {
   });
 }
 
+// Single-instance guard: pg_try_advisory_lock takes the lock on one pooled
+// connection and the pool holds that connection open for the process
+// lifetime, so the lock survives until the worker exits. Returns false when
+// another worker already holds it.
+async function acquireSingletonLock(): Promise<boolean> {
+  const rows = await db.execute<{ locked: boolean }>(sql`
+    select pg_try_advisory_lock(${SINGLETON_LOCK_KEY}) as locked
+  `);
+  return rows[0]?.locked === true;
+}
+
 // Poll loop — only when run as a process (`bun run worker`); tests import
 // runOnce directly and never enter this branch (import.meta.main is false
 // under `bun test`).
 async function main(): Promise<void> {
+  if (!(await acquireSingletonLock())) {
+    log.error('another worker holds the advisory lock; exiting', {
+      lockKey: SINGLETON_LOCK_KEY,
+    });
+    process.exitCode = 1;
+    return;
+  }
   log.info('embed worker started', {
     pollMs: POLL_MS,
     hotEveryMs: HOT_EVERY_MS,
