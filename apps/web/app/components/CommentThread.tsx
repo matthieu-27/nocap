@@ -292,10 +292,10 @@ function Replies({
   const count = childrenComments.length;
   return (
     <Collapsible defaultOpen className="mt-1">
-      <CollapsibleTrigger asChild>
-        <Button type="button" variant="ghost" size="xs">
-          {count} {count === 1 ? 'reply' : 'replies'}
-        </Button>
+      <CollapsibleTrigger
+        render={<Button type="button" variant="ghost" size="xs" />}
+      >
+        {count} {count === 1 ? 'reply' : 'replies'}
       </CollapsibleTrigger>
       <CollapsibleContent>
         <div className="mt-2 flex flex-col gap-4 border-l pl-4">
