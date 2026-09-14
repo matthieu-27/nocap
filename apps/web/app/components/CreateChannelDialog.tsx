@@ -78,16 +78,18 @@ export function CreateChannelDialog(): ReactElement {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className="w-full justify-start"
-        >
-          <Plus data-icon="inline-start" />
-          Create channel
-        </Button>
+      <DialogTrigger
+        render={
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="w-full justify-start"
+          />
+        }
+      >
+        <Plus data-icon="inline-start" />
+        Create channel
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
