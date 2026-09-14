@@ -37,19 +37,21 @@ export function AccountMenu({
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="Account menu">
-          <Avatar className="size-8">
-            <AvatarFallback>{user.username.slice(0, 2)}</AvatarFallback>
-          </Avatar>
-        </Button>
+      <DropdownMenuTrigger
+        render={
+          <Button variant="ghost" size="icon" aria-label="Account menu" />
+        }
+      >
+        <Avatar className="size-8">
+          <AvatarFallback>{user.username.slice(0, 2)}</AvatarFallback>
+        </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-52">
         <DropdownMenuLabel>{userHandle(user.username)}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {/* Profile / Settings / Mod tools items arrive with Plan 3, when their
             routes exist. Items pointing at 404s are worse than fewer items. */}
-        <DropdownMenuItem onSelect={onSignOut}>
+        <DropdownMenuItem onClick={onSignOut}>
           <LogOut /> Log out
         </DropdownMenuItem>
       </DropdownMenuContent>

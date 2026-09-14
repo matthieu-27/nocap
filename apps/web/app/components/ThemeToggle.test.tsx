@@ -24,7 +24,7 @@ describe('ThemeToggle', () => {
     render(tree());
 
     await user.click(screen.getByRole('button', { name: 'Toggle theme' }));
-    await user.click(screen.getByRole('menuitem', { name: 'Dark' }));
+    await user.click(await screen.findByRole('menuitem', { name: 'Dark' }));
 
     expect(localStorage.getItem('nocap-theme')).toBe('dark');
     expect(document.documentElement.classList.contains('dark')).toBe(true);
@@ -36,7 +36,7 @@ describe('ThemeToggle', () => {
     render(tree());
 
     await user.click(screen.getByRole('button', { name: 'Toggle theme' }));
-    await user.click(screen.getByRole('menuitem', { name: 'Light' }));
+    await user.click(await screen.findByRole('menuitem', { name: 'Light' }));
 
     expect(localStorage.getItem('nocap-theme')).toBe('light');
     expect(document.documentElement.classList.contains('dark')).toBe(false);
@@ -48,7 +48,9 @@ describe('ThemeToggle', () => {
 
     await user.click(screen.getByRole('button', { name: 'Toggle theme' }));
 
-    expect(screen.getByRole('menuitem', { name: 'Light' })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('menuitem', { name: 'Light' }),
+    ).toBeInTheDocument();
     expect(screen.getByRole('menuitem', { name: 'Dark' })).toBeInTheDocument();
     expect(
       screen.getByRole('menuitem', { name: 'System' }),
