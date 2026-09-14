@@ -2,8 +2,8 @@
 // complete — members light up as screens consume them.
 // fallow-ignore-file unused-export
 
+import { useRender } from '@base-ui/react/use-render';
 import { ChevronRight, MoreHorizontal } from 'lucide-react';
-import { Slot } from 'radix-ui';
 import type * as React from 'react';
 import { cn } from '@/lib/utils';
 
@@ -35,21 +35,20 @@ function BreadcrumbItem({ className, ...props }: React.ComponentProps<'li'>) {
 }
 
 function BreadcrumbLink({
-  asChild,
+  render,
   className,
   ...props
-}: React.ComponentProps<'a'> & {
-  asChild?: boolean;
-}) {
-  const Comp = asChild ? Slot.Root : 'a';
-
-  return (
-    <Comp
-      data-slot="breadcrumb-link"
-      className={cn('transition-colors hover:text-foreground', className)}
-      {...props}
-    />
-  );
+}: useRender.ComponentProps<'a'>) {
+  const element = useRender({
+    render,
+    defaultTagName: 'a',
+    props: {
+      ...props,
+      'data-slot': 'breadcrumb-link',
+      className: cn('transition-colors hover:text-foreground', className),
+    },
+  });
+  return element;
 }
 
 function BreadcrumbPage({ className, ...props }: React.ComponentProps<'span'>) {

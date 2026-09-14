@@ -122,10 +122,8 @@ export default function PostRoute({
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to={`/d/${post.domainSlug}`}>
-                {channelHandle(post.domainSlug)}
-              </Link>
+            <BreadcrumbLink render={<Link to={`/d/${post.domainSlug}`} />}>
+              {channelHandle(post.domainSlug)}
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
