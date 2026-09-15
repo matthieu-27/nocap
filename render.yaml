@@ -29,14 +29,14 @@ services:
       - key: BETTER_AUTH_URL
         value: https://nocap-api.onrender.com/
       - key: WEB_ORIGIN
-        value: https://nocap-web.onrender.com
+        value: https://nocap.onrender.com
       - key: WORKER_INLINE
         value: "1"
       - key: START_PATH
         value: apps/api/src/index.ts
 
   - type: web
-    name: nocap-web
+    name: nocap
     runtime: docker
     repo: https://github.com/matthieu-27/nocap.git
     branch: main
