@@ -9,7 +9,7 @@
 previewsEnabled: false
 services:
   - type: web
-    name: nocap-api
+    name: nocap-backend
     runtime: docker
     repo: https://github.com/matthieu-27/nocap.git
     branch: main
@@ -27,7 +27,7 @@ services:
       - key: BETTER_AUTH_SECRET
         generateValue: true
       - key: BETTER_AUTH_URL
-        value: https://nocap-api.onrender.com/
+        value: https://nocap-backend.onrender.com/
       - key: WEB_ORIGIN
         value: https://nocap.onrender.com
       - key: WORKER_INLINE
@@ -48,6 +48,6 @@ services:
     autoDeploy: true
     envVars:
       - key: API_URL
-        value: https://nocap-api.onrender.com
+        value: https://nocap-backend.onrender.com
       - key: START_PATH
         value: apps/web/server.mjs
