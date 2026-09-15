@@ -1,0 +1,53 @@
+# Render Blueprint for NoCaP. Applies as a project (dashboard: New ->
+# Blueprint -> repo matthieu-27/nocap), so the purrlock services in other
+# projects are never touched by blueprint sync.
+#
+# Both services share one Docker image: the root Dockerfile builds the
+# whole Bun workspace, and START_PATH selects the entry point per service
+# (Render background workers are paid-only, so the embed worker runs
+# inline in the API process behind WORKER_INLINE=1).
+previewsEnabled: false
+services:
+  - type: web
+    name: nocap-api
+    runtime: docker
+    repo: https://github.com/matthieu-27/nocap.git
+    branch: feat/content-screens
+    region: frankfurt
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      # Neon Postgres connection string. sync: false keeps it out of the
+      # repo; Render prompts for it on the first blueprint deploy.
+      - key: DATABASE_URL
+        sync: false
+      - key: BETTER_AUTH_SECRET
+        generateValue: true
+      - key: BETTER_AUTH_URL
+        value: https://nocap-api.onrender.com/
+      - key: WEB_ORIGIN
+        value: https://nocap-web.onrender.com
+      - key: WORKER_INLINE
+        value: "1"
+      - key: START_PATH
+        value: apps/api/src/index.ts
+
+  - type: web
+    name: nocap-web
+    runtime: docker
+    repo: https://github.com/matthieu-27/nocap.git
+    branch: feat/content-screens
+    region: frankfurt
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /
+    autoDeploy: true
+    envVars:
+      - key: API_URL
+        value: https://nocap-api.onrender.com
+      - key: START_PATH
+        value: apps/web/server.mjs
