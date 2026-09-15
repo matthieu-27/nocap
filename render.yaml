@@ -12,7 +12,7 @@ services:
     name: nocap-api
     runtime: docker
     repo: https://github.com/matthieu-27/nocap.git
-    branch: feat/content-screens
+    branch: main
     region: frankfurt
     plan: free
     dockerfilePath: ./Dockerfile
@@ -39,7 +39,7 @@ services:
     name: nocap-web
     runtime: docker
     repo: https://github.com/matthieu-27/nocap.git
-    branch: feat/content-screens
+    branch: main
     region: frankfurt
     plan: free
     dockerfilePath: ./Dockerfile
