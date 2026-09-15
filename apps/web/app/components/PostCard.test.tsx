@@ -44,7 +44,7 @@ describe('PostCard', () => {
     expect(
       screen.getByRole('link', { name: /Referee ignored three obvious fouls/ }),
     ).toHaveAttribute('href', '/p/1042');
-    expect(screen.getByRole('link', { name: 'nocap/sports' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'r/sports' })).toHaveAttribute(
       'href',
       '/d/sports',
     );

@@ -65,7 +65,6 @@ export function parseSessionRole(
 }
 
 export const SITE_NAME = 'NoCaP';
-export const SITE_HANDLE = 'nocap';
 
 // Registry of postable source types (spec §6). Provider adapters in the
 // worker are separate modules keyed by these ids — adding a provider means
@@ -73,12 +72,13 @@ export const SITE_HANDLE = 'nocap';
 export const SUPPORTED_PROVIDERS = ['youtube', 'tiktok', 'link'] as const;
 export type ProviderId = (typeof SUPPORTED_PROVIDERS)[number];
 
+// Reddit-style handles (r/, u/) — homage to Aaron Swartz.
 export function channelHandle(slug: string): string {
-  return `${SITE_HANDLE}/${slug}`;
+  return `r/${slug}`;
 }
 
 export function userHandle(username: string): string {
-  return `${SITE_HANDLE}/${username}`;
+  return `u/${username}`;
 }
 
 export interface UserProfileDto {

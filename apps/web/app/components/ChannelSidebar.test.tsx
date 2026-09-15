@@ -42,20 +42,18 @@ function componentTree(props?: {
 }
 
 describe('ChannelSidebar', () => {
-  it('renders each domain as a nocap-prefixed channel link', () => {
+  it('renders each domain as an r/-prefixed channel link', () => {
     render(componentTree());
+    expect(screen.getByRole('link', { name: 'r/sports' })).toBeInTheDocument();
     expect(
-      screen.getByRole('link', { name: 'nocap/sports' }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('link', { name: 'nocap/politics' }),
+      screen.getByRole('link', { name: 'r/politics' }),
     ).toBeInTheDocument();
   });
 
   it('marks the active channel link as the current page', () => {
     render(componentTree());
     expect(
-      screen.getByRole('link', { name: 'nocap/sports', current: 'page' }),
+      screen.getByRole('link', { name: 'r/sports', current: 'page' }),
     ).toBeInTheDocument();
   });
 

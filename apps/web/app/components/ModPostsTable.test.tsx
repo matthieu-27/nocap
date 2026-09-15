@@ -77,8 +77,8 @@ describe('ModPostsTable', () => {
     expect(
       screen.getByRole('link', { name: /Goldfish learned Rust/ }),
     ).toBeInTheDocument();
-    expect(screen.getAllByText('nocap/tech')).toHaveLength(2);
-    expect(screen.getByText('nocap/sports')).toBeInTheDocument();
+    expect(screen.getAllByText('r/tech')).toHaveLength(2);
+    expect(screen.getByText('r/sports')).toBeInTheDocument();
     expect(screen.getByText('removed')).toBeInTheDocument();
     expect(
       screen.getByText('3 posts · 1 removed · 3 open reports'),
@@ -108,9 +108,7 @@ describe('ModPostsTable', () => {
     await user.click(
       screen.getByRole('combobox', { name: 'Filter by channel' }),
     );
-    await user.click(
-      await screen.findByRole('option', { name: 'nocap/sports' }),
-    );
+    await user.click(await screen.findByRole('option', { name: 'r/sports' }));
 
     expect(
       screen.queryByRole('link', { name: /Goldfish learned Rust/ }),

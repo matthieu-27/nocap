@@ -64,8 +64,8 @@ function tree(
 }
 
 function latecomerComesFirst(): boolean {
-  const latecomer = screen.getByText('nocap/latecomer');
-  const earlybird = screen.getByText('nocap/earlybird');
+  const latecomer = screen.getByText('u/latecomer');
+  const earlybird = screen.getByText('u/earlybird');
   return (
     (latecomer.compareDocumentPosition(earlybird) &
       Node.DOCUMENT_POSITION_FOLLOWING) !==

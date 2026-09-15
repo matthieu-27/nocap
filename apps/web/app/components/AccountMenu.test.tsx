@@ -41,7 +41,7 @@ describe('AccountMenu', () => {
     expect(
       await screen.findByRole('menuitem', { name: 'Log out' }),
     ).toBeInTheDocument();
-    expect(screen.getByText('nocap/trackfan')).toBeInTheDocument();
+    expect(screen.getByText('u/trackfan')).toBeInTheDocument();
   });
 
   it('logged-in user clicking Log out calls onSignOut', async () => {

@@ -111,7 +111,7 @@ export function CreateChannelDialog(): ReactElement {
               />
               <FieldDescription>
                 3–32 lowercase letters, digits, or hyphens — becomes
-                nocap/&lt;slug&gt;.
+                r/&lt;slug&gt;.
               </FieldDescription>
             </Field>
             <Field data-invalid={nameInvalid || undefined}>
