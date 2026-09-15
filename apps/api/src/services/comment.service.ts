@@ -1,5 +1,5 @@
 import type { CommentDto, VoteValue } from '@nocap/shared';
-import { and, eq, isNull, sql } from 'drizzle-orm';
+import { and, eq, inArray, isNull, sql } from 'drizzle-orm';
 import { db } from '../db/client';
 import { comments, commentVotes, posts } from '../db/schema';
 import { ServiceError } from '../errors';
@@ -24,6 +24,43 @@ const TREE_QUERY = (postId: number) => sql`
   SELECT id, post_id, parent_id, body, score, created_at, depth, author FROM tree
   ORDER BY created_at ASC
 `;
+
+// Session-scoped read: merge the viewer's own comment vote so the web
+// renders comment arrows in their active state. Anonymous callers skip the
+// merge — the field stays absent.
+async function attachViewerVotes(
+  commentDtos: CommentDto[],
+  viewerId: number | null,
+): Promise<CommentDto[]> {
+  if (viewerId === null || commentDtos.length === 0) {
+    return commentDtos;
+  }
+  const voteRows = await db
+    .select({ commentId: commentVotes.commentId, value: commentVotes.value })
+    .from(commentVotes)
+    .where(
+      and(
+        eq(commentVotes.userId, viewerId),
+        inArray(
+          commentVotes.commentId,
+          commentDtos.map((dto) => dto.id),
+        ),
+      ),
+    );
+  // Read-side validation: the write path only stores -1/0/1, but the smallint
+  // column cannot enforce that itself, so an out-of-range row degrades to
+  // "no vote" instead of leaking into CommentDto.
+  const byCommentId = new Map<number, VoteValue>();
+  for (const row of voteRows) {
+    if (row.value === 1 || row.value === -1 || row.value === 0) {
+      byCommentId.set(row.commentId, row.value);
+    }
+  }
+  return commentDtos.map((dto) => ({
+    ...dto,
+    viewerVote: byCommentId.get(dto.id) ?? null,
+  }));
+}
 
 export async function createComment(
   userId: number,
@@ -65,17 +102,20 @@ export async function createComment(
   const commentId = inserted[0]?.id;
   if (!commentId) throw new ServiceError(500, 'comment insert failed');
 
-  const dto = (await listComments(postId)).find(
+  const dto = (await listComments(postId, userId)).find(
     (comment) => comment.id === commentId,
   );
   if (!dto) throw new ServiceError(500, 'comment vanished after insert');
   return dto;
 }
 
-export async function listComments(postId: number): Promise<CommentDto[]> {
+export async function listComments(
+  postId: number,
+  viewerId: number | null = null,
+): Promise<CommentDto[]> {
   // postgres-js execute returns untyped RowList; convert field by field
   const rows = await db.execute(TREE_QUERY(postId));
-  return rows.map((row) => {
+  const dtos = rows.map((row) => {
     return {
       id: Number(row.id),
       postId: Number(row.post_id),
@@ -90,6 +130,7 @@ export async function listComments(postId: number): Promise<CommentDto[]> {
       createdAt: new Date(String(row.created_at)).toISOString(),
     };
   });
+  return attachViewerVotes(dtos, viewerId);
 }
 
 export async function voteComment(
@@ -107,6 +148,9 @@ export async function voteComment(
     .limit(1);
   if (exists.length === 0) throw new ServiceError(404, 'comment not found');
 
+  // Plan-1 vote transaction, the comment twin of vote.service.ts — the
+  // branch ladder is test-pinned and mirrors the post version per-table.
+  // fallow-ignore-next-line complexity
   return db.transaction(async (tx) => {
     const existingRows = await tx
       .select()
@@ -141,7 +185,19 @@ export async function voteComment(
           ),
         );
     } else {
-      await tx.insert(commentVotes).values({ commentId, userId, value });
+      try {
+        // Mirrored tail of the post vote transaction (vote.service.ts) —
+        // same ladder, different tables.
+        // fallow-ignore-next-line code-duplication
+        await tx.insert(commentVotes).values({ commentId, userId, value });
+      } catch (err) {
+        // 23505 = unique_violation: a concurrent request inserted this
+        // (user, comment) vote between the existence read and the insert.
+        if ((err as { code?: string }).code === '23505') {
+          throw new ServiceError(409, 'vote already registered');
+        }
+        throw err;
+      }
     }
 
     const delta = value - previous;

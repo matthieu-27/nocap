@@ -1,0 +1,17 @@
+# Never shipped to the Docker build context: installed deps get reinstalled
+# inside the image, secrets stay local, and stale build output would shadow
+# the fresh container build.
+node_modules
+**/node_modules
+.git
+.env
+**/.env
+**/build
+**/dist
+**/.react-router
+coverage
+.fallow-review
+.agents
+.migration
+docs
+*.md

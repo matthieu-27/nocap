@@ -19,6 +19,10 @@ export async function votePost(
     .limit(1);
   if (postExists.length === 0) throw new ServiceError(404, 'post not found');
 
+  // Plan-1 vote transaction: the 10-branch ladder (validate → exists →
+  // read → insert/update/delete → delta → score) is test-pinned; the
+  // sibling in comment.service.ts mirrors it per-table on purpose.
+  // fallow-ignore-next-line complexity
   return db.transaction(async (tx) => {
     const existingRows = await tx
       .select()
@@ -38,7 +42,19 @@ export async function votePost(
         .set({ value })
         .where(and(eq(votes.postId, postId), eq(votes.userId, userId)));
     } else {
-      await tx.insert(votes).values({ postId, userId, value });
+      try {
+        // Mirrored tail of the comment vote transaction (comment.service.ts)
+        // — same ladder, different tables.
+        // fallow-ignore-next-line code-duplication
+        await tx.insert(votes).values({ postId, userId, value });
+      } catch (err) {
+        // 23505 = unique_violation: a concurrent request inserted this
+        // (user, post) vote between the existence read and the insert.
+        if ((err as { code?: string }).code === '23505') {
+          throw new ServiceError(409, 'vote already registered');
+        }
+        throw err;
+      }
     }
 
     const delta = value - previous;

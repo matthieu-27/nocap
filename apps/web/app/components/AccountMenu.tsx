@@ -3,7 +3,7 @@ import { userHandle } from '@nocap/shared';
 import { LogOut } from 'lucide-react';
 import { Link } from 'react-router';
 import { Avatar, AvatarFallback } from './ui/avatar';
-import { Button } from './ui/button';
+import { Button, buttonVariants } from './ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,31 +25,33 @@ export function AccountMenu({
   if (!user) {
     return (
       <div className="flex items-center gap-2">
-        <Button variant="ghost" asChild>
-          <Link to="/login">Log in</Link>
-        </Button>
-        <Button asChild>
-          <Link to="/signup">Sign up</Link>
-        </Button>
+        <Link to="/login" className={buttonVariants({ variant: 'ghost' })}>
+          Log in
+        </Link>
+        <Link to="/signup" className={buttonVariants()}>
+          Sign up
+        </Link>
       </div>
     );
   }
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="Account menu">
-          <Avatar className="size-8">
-            <AvatarFallback>{user.username.slice(0, 2)}</AvatarFallback>
-          </Avatar>
-        </Button>
+      <DropdownMenuTrigger
+        render={
+          <Button variant="ghost" size="icon" aria-label="Account menu" />
+        }
+      >
+        <Avatar className="size-8">
+          <AvatarFallback>{user.username.slice(0, 2)}</AvatarFallback>
+        </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-52">
         <DropdownMenuLabel>{userHandle(user.username)}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {/* Profile / Settings / Mod tools items arrive with Plan 3, when their
             routes exist. Items pointing at 404s are worse than fewer items. */}
-        <DropdownMenuItem onSelect={onSignOut}>
+        <DropdownMenuItem onClick={onSignOut}>
           <LogOut /> Log out
         </DropdownMenuItem>
       </DropdownMenuContent>

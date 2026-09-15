@@ -5,9 +5,12 @@ import {
   route,
 } from '@react-router/dev/routes';
 
-export const routes: RouteConfig = [
+const routes: RouteConfig = [
   layout('./routes/_shell.tsx', [
     index('./routes/home.tsx'),
+    route('d/:slug', './routes/channel.tsx'),
+    route('p/:id', './routes/post.tsx'),
+    route('mod', './routes/mod.tsx'),
     route('terms', './routes/terms.tsx'),
     route('privacy', './routes/privacy.tsx'),
     route('contact', './routes/contact.tsx'),

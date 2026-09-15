@@ -1,4 +1,7 @@
 import { beforeEach, describe, expect, it } from 'bun:test';
+import { eq } from 'drizzle-orm';
+import { db } from '../src/db/client';
+import { commentVotes } from '../src/db/schema';
 import { resetDb } from '../src/db/testSetup';
 import { app } from '../src/index';
 
@@ -140,5 +143,85 @@ describe('comments', () => {
       body: JSON.stringify({ body: 'orphan' }),
     });
     expect(response.status).toBe(404);
+  });
+
+  it('comment list exposes the viewer own vote', async () => {
+    const alice = await signupCookie('alice');
+    const bob = await signupCookie('bob');
+    const postId = await seedPost(alice);
+
+    const created = await app.request(`/api/posts/${postId}/comments`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Cookie: alice },
+      body: JSON.stringify({ body: 'sourcing is solid' }),
+    });
+    const createdComment = (await created.json()) as {
+      id: number;
+      viewerVote: number | null;
+    };
+    expect(createdComment.viewerVote).toBeNull();
+
+    await app.request(`/api/comments/${createdComment.id}/vote`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Cookie: bob },
+      body: JSON.stringify({ value: 1 }),
+    });
+
+    const bobList = await app.request(`/api/posts/${postId}/comments`, {
+      headers: { Cookie: bob },
+    });
+    const bobView = (await bobList.json()) as {
+      id: number;
+      viewerVote: number | null;
+    }[];
+    expect(
+      bobView.find((comment) => comment.id === createdComment.id)?.viewerVote,
+    ).toBe(1);
+
+    const anonymousList = await app.request(`/api/posts/${postId}/comments`);
+    const anonymousView = (await anonymousList.json()) as {
+      id: number;
+      viewerVote?: number | null;
+    }[];
+    expect(
+      anonymousView.find((comment) => comment.id === createdComment.id)
+        ?.viewerVote,
+    ).toBeUndefined();
+  });
+
+  it('a corrupted comment vote row reads as no vote instead of an invalid viewer vote', async () => {
+    const alice = await signupCookie('alice');
+    const bob = await signupCookie('bob');
+    const postId = await seedPost(alice);
+
+    const created = await app.request(`/api/posts/${postId}/comments`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Cookie: alice },
+      body: JSON.stringify({ body: 'sourcing is solid' }),
+    });
+    const createdComment = (await created.json()) as { id: number };
+
+    await app.request(`/api/comments/${createdComment.id}/vote`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Cookie: bob },
+      body: JSON.stringify({ value: 1 }),
+    });
+    // Simulate an out-of-range value that bypassed the write path —
+    // the read must not trust the smallint column.
+    await db
+      .update(commentVotes)
+      .set({ value: 7 })
+      .where(eq(commentVotes.commentId, createdComment.id));
+
+    const bobList = await app.request(`/api/posts/${postId}/comments`, {
+      headers: { Cookie: bob },
+    });
+    const bobView = (await bobList.json()) as {
+      id: number;
+      viewerVote: number | null;
+    }[];
+    expect(
+      bobView.find((comment) => comment.id === createdComment.id)?.viewerVote,
+    ).toBeNull();
   });
 });

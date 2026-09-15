@@ -111,6 +111,21 @@ describe('posts', () => {
     expect(response.status).toBe(400);
   });
 
+  it('feed rejects a non-numeric limit query with 400 error', async () => {
+    const response = await app.request('/api/posts?limit=abc');
+    expect(response.status).toBe(400);
+  });
+
+  it('feed rejects an out-of-range limit query with 400 error', async () => {
+    const response = await app.request('/api/posts?limit=500');
+    expect(response.status).toBe(400);
+  });
+
+  it('feed rejects a negative offset query with 400 error', async () => {
+    const response = await app.request('/api/posts?offset=-1');
+    expect(response.status).toBe(400);
+  });
+
   it('post detail returns the post for an anonymous visitor', async () => {
     const cookie = await signupCookie('tracker');
     await createDomain(cookie, 'sports');

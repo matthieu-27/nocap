@@ -1,55 +1,49 @@
-import type { PostDto } from '@nocap/shared';
-import { and, desc, eq, gte, isNull, sql } from 'drizzle-orm';
+import type { ModPostDto, PostDto, VoteValue } from '@nocap/shared';
+import { and, count, desc, eq, gte, inArray, isNull } from 'drizzle-orm';
 import { db } from '../db/client';
-import { domains, jobs, posts, user } from '../db/schema';
+import { domains, jobs, posts, reports, user, votes } from '../db/schema';
 import { ServiceError } from '../errors';
+import { postColumns, postsJoinedQuery, toDto } from './postProjection';
 
 const WINDOW_DAYS = { day: 1, week: 7 } as const;
+const MOD_POSTS_LIMIT = 200;
 
-interface PostRow {
-  id: number;
-  domainId: number;
-  domainSlug: string;
-  author: string;
-  title: string;
-  body: string | null;
-  url: string;
-  provider: string | null;
-  embed: unknown;
-  score: number;
-  createdAt: Date;
+// Session-scoped read: merge the viewer's own vote into each post so the
+// web can render the vote arrows in their active state. Anonymous callers
+// skip the merge — the field stays absent.
+async function attachViewerVotes(
+  postDtos: PostDto[],
+  viewerId: number | null,
+): Promise<PostDto[]> {
+  if (viewerId === null || postDtos.length === 0) {
+    return postDtos;
+  }
+  const voteRows = await db
+    .select({ postId: votes.postId, value: votes.value })
+    .from(votes)
+    .where(
+      and(
+        eq(votes.userId, viewerId),
+        inArray(
+          votes.postId,
+          postDtos.map((dto) => dto.id),
+        ),
+      ),
+    );
+  // Read-side validation: the write path only stores -1/0/1, but the smallint
+  // column cannot enforce that itself, so an out-of-range row degrades to
+  // "no vote" instead of leaking into PostDto.
+  const byPostId = new Map<number, VoteValue>();
+  for (const row of voteRows) {
+    if (row.value === 1 || row.value === -1 || row.value === 0) {
+      byPostId.set(row.postId, row.value);
+    }
+  }
+  return postDtos.map((dto) => ({
+    ...dto,
+    viewerVote: byPostId.get(dto.id) ?? null,
+  }));
 }
-
-function toDto(row: PostRow): PostDto {
-  return {
-    id: row.id,
-    domainId: row.domainId,
-    domainSlug: row.domainSlug,
-    author: row.author,
-    title: row.title,
-    body: row.body,
-    url: row.url,
-    provider: row.provider,
-    embed: row.embed,
-    score: row.score,
-    createdAt: row.createdAt.toISOString(),
-  };
-}
-
-const postColumns = {
-  id: posts.id,
-  domainId: posts.domainId,
-  domainSlug: domains.slug,
-  // username is nullable in the Better Auth table; name never is
-  author: sql<string>`coalesce(${user.username}, ${user.name})`,
-  title: posts.title,
-  body: posts.body,
-  url: posts.url,
-  provider: posts.provider,
-  embed: posts.embed,
-  score: posts.score,
-  createdAt: posts.createdAt,
-};
 
 export async function createPost(
   userId: number,
@@ -104,6 +98,7 @@ export async function listPosts(options: {
   window?: 'day' | 'week' | 'all';
   limit: number;
   offset: number;
+  viewerId?: number | null;
 }): Promise<PostDto[]> {
   const conditions = [isNull(posts.deletedAt)];
   if (options.domainSlug) {
@@ -122,31 +117,57 @@ export async function listPosts(options: {
         ? desc(posts.score)
         : desc(posts.hotRank);
 
-  const rows = await db
-    .select(postColumns)
-    .from(posts)
-    .innerJoin(domains, eq(domains.id, posts.domainId))
-    .innerJoin(user, eq(user.id, posts.authorId))
+  const rows = await postsJoinedQuery()
     .where(and(...conditions))
     .orderBy(orderBy)
     .limit(options.limit)
     .offset(options.offset);
 
-  return rows.map(toDto);
+  return attachViewerVotes(rows.map(toDto), options.viewerId ?? null);
 }
 
-export async function getPost(postId: number): Promise<PostDto> {
-  const rows = await db
-    .select(postColumns)
-    .from(posts)
-    .innerJoin(domains, eq(domains.id, posts.domainId))
-    .innerJoin(user, eq(user.id, posts.authorId))
+export async function getPost(
+  postId: number,
+  viewerId: number | null = null,
+): Promise<PostDto> {
+  const rows = await postsJoinedQuery()
     .where(and(eq(posts.id, postId), isNull(posts.deletedAt)))
     .limit(1);
 
   const row = rows[0];
   if (!row) throw new ServiceError(404, 'post not found');
-  return toDto(row);
+  const [dto] = await attachViewerVotes([toDto(row)], viewerId);
+  // attach preserves length; the fallback only satisfies the type checker
+  return dto ?? toDto(row);
+}
+
+// Mod-facing listing: includes soft-deleted posts and counts open reports.
+// The group by must enumerate the joined columns feeding the coalesce
+// author template and the domain slug — the posts.id functional
+// dependency only covers posts.* columns (else PG raises 42803).
+export async function listModPosts(): Promise<ModPostDto[]> {
+  const rows = await db
+    .select({
+      ...postColumns,
+      deletedAt: posts.deletedAt,
+      openReports: count(reports.id),
+    })
+    .from(posts)
+    .innerJoin(domains, eq(domains.id, posts.domainId))
+    .innerJoin(user, eq(user.id, posts.authorId))
+    .leftJoin(
+      reports,
+      and(eq(reports.postId, posts.id), eq(reports.status, 'open')),
+    )
+    .groupBy(posts.id, domains.slug, user.username, user.name)
+    .orderBy(desc(posts.createdAt))
+    .limit(MOD_POSTS_LIMIT);
+
+  return rows.map((row) => ({
+    ...toDto(row),
+    removedAt: row.deletedAt?.toISOString() ?? null,
+    openReports: row.openReports,
+  }));
 }
 
 export async function listJobsDev(): Promise<

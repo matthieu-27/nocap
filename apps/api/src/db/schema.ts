@@ -46,6 +46,9 @@ export const posts = pgTable(
     provider: varchar('provider', { length: 32 }),
     embed: jsonb('embed'),
     score: integer('score').notNull().default(0),
+    // Table-definition parallelism (timestamps + index callbacks) is
+    // declarative schema vocabulary, not extractable logic.
+    // fallow-ignore-next-line code-duplication
     hotRank: doublePrecision('hot_rank').notNull().default(0),
     createdAt: timestamp('created_at', { withTimezone: true })
       .notNull()
@@ -89,6 +92,9 @@ export const comments = pgTable(
       .references(() => user.id),
     parentId: integer('parent_id'),
     body: text('body').notNull(),
+    // Table-definition parallelism (timestamps + index callbacks) is
+    // declarative schema vocabulary, not extractable logic.
+    // fallow-ignore-next-line code-duplication
     score: integer('score').notNull().default(0),
     createdAt: timestamp('created_at', { withTimezone: true })
       .notNull()

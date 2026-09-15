@@ -38,3 +38,15 @@ export default {
   app,
 };
 export { app };
+
+// Free-tier deploys (Render) have no background-worker instance, so the embed
+// worker folds into this process behind WORKER_INLINE=1. Dynamic import keeps
+// the loop out of tests and local dev; the advisory lock still guarantees a
+// single loop even if the API scales beyond one instance.
+if (process.env.WORKER_INLINE === '1') {
+  import('./worker')
+    .then(({ startWorker }) => startWorker())
+    .catch((error: unknown) => {
+      log.error('inline worker crashed', { error: String(error) });
+    });
+}

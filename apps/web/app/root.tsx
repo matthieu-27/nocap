@@ -1,9 +1,18 @@
 import type { ReactNode } from 'react';
-import { Links, Meta, Outlet, Scripts, ScrollRestoration } from 'react-router';
+import {
+  isRouteErrorResponse,
+  Link,
+  Links,
+  Meta,
+  Outlet,
+  Scripts,
+  ScrollRestoration,
+  useRouteError,
+} from 'react-router';
 import './styles.css';
-
-// No-FOUC: runs before first paint; honors stored choice, falls back to system.
-const themeInit = `try{var t=localStorage.getItem('nocap-theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark')}}catch(e){/* ignore: storage unavailable (private mode); system theme applies */}`;
+import { buttonVariants } from '@/components/ui/button';
+import { Toaster } from '@/components/ui/sonner';
+import { ThemeProvider } from '@/contexts/theme-provider';
 
 export function Layout({
   children,
@@ -11,20 +20,22 @@ export function Layout({
   children: ReactNode;
 }): React.ReactElement {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>NoCaP</title>
         <Meta />
         <Links />
-        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: static theme-init constant defined above, no user input */}
-        <script dangerouslySetInnerHTML={{ __html: themeInit }} />
+        <script src="/theme-init.js" blocking="render" />
       </head>
       <body>
-        {children}
-        <ScrollRestoration />
-        <Scripts />
+        <ThemeProvider defaultTheme="dark" storageKey="nocap-theme">
+          {children}
+          <ScrollRestoration />
+          <Toaster richColors position="bottom-right" />
+          <Scripts />
+        </ThemeProvider>
       </body>
     </html>
   );
@@ -32,4 +43,25 @@ export function Layout({
 
 export default function App(): React.ReactElement {
   return <Outlet />;
+}
+
+// Route-level failures render through Layout: unknown channels, missing
+// posts, and unmatched paths all land here with their status message.
+export function ErrorBoundary(): React.ReactElement {
+  const error = useRouteError();
+  const isResponse = isRouteErrorResponse(error);
+  const status = isResponse ? String(error.status) : 'Oops';
+  const message =
+    isResponse && error.statusText !== ''
+      ? error.statusText
+      : 'Something went wrong';
+  return (
+    <section className="flex min-h-[60vh] flex-col items-center justify-center gap-3 p-16 text-center">
+      <h1 className="text-4xl font-bold">{status}</h1>
+      <p className="text-muted-foreground">{message}</p>
+      <Link to="/" className={buttonVariants({ className: 'mt-2' })}>
+        Back to the feed
+      </Link>
+    </section>
+  );
 }

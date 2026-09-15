@@ -1,4 +1,7 @@
 import { beforeEach, describe, expect, it } from 'bun:test';
+import { eq } from 'drizzle-orm';
+import { db } from '../src/db/client';
+import { votes } from '../src/db/schema';
 import { resetDb } from '../src/db/testSetup';
 import { app } from '../src/index';
 
@@ -91,5 +94,88 @@ describe('post votes', () => {
     const alice = await signupCookie('alice');
     const response = await vote(alice, 9999, 1);
     expect(response.status).toBe(404);
+  });
+
+  it('feed and detail expose the viewer current vote', async () => {
+    const alice = await signupCookie('alice');
+    const postId = await seedPost(alice);
+
+    const unvoted = await app.request(`/api/posts/${postId}`, {
+      headers: { Cookie: alice },
+    });
+    expect(
+      ((await unvoted.json()) as { viewerVote: number | null }).viewerVote,
+    ).toBeNull();
+
+    await vote(alice, postId, 1);
+    const feed = await app.request('/api/posts?sort=new', {
+      headers: { Cookie: alice },
+    });
+    const feedPosts = (await feed.json()) as {
+      id: number;
+      viewerVote: number | null;
+    }[];
+    expect(feedPosts.find((post) => post.id === postId)?.viewerVote).toBe(1);
+
+    const detail = await app.request(`/api/posts/${postId}`, {
+      headers: { Cookie: alice },
+    });
+    expect(
+      ((await detail.json()) as { viewerVote: number | null }).viewerVote,
+    ).toBe(1);
+  });
+
+  it('a corrupted vote row reads as no vote instead of an invalid viewer vote', async () => {
+    const alice = await signupCookie('alice');
+    const postId = await seedPost(alice);
+
+    await vote(alice, postId, 1);
+    // Simulate an out-of-range value that bypassed the write path —
+    // the read must not trust the smallint column.
+    await db.update(votes).set({ value: 7 }).where(eq(votes.postId, postId));
+
+    const detail = await app.request(`/api/posts/${postId}`, {
+      headers: { Cookie: alice },
+    });
+    expect(
+      ((await detail.json()) as { viewerVote: number | null }).viewerVote,
+    ).toBeNull();
+  });
+
+  it('viewer vote follows switches and removal', async () => {
+    const alice = await signupCookie('alice');
+    const postId = await seedPost(alice);
+
+    await vote(alice, postId, 1);
+    await vote(alice, postId, -1);
+    const switched = await app.request(`/api/posts/${postId}`, {
+      headers: { Cookie: alice },
+    });
+    expect(
+      ((await switched.json()) as { viewerVote: number | null }).viewerVote,
+    ).toBe(-1);
+
+    await vote(alice, postId, 0);
+    const removed = await app.request(`/api/posts/${postId}`, {
+      headers: { Cookie: alice },
+    });
+    expect(
+      ((await removed.json()) as { viewerVote: number | null }).viewerVote,
+    ).toBeNull();
+  });
+
+  it('anonymous feed omits the viewer vote field', async () => {
+    const alice = await signupCookie('alice');
+    const postId = await seedPost(alice);
+    await vote(alice, postId, 1);
+
+    const feed = await app.request('/api/posts?sort=new');
+    const feedPosts = (await feed.json()) as {
+      id: number;
+      viewerVote?: number | null;
+    }[];
+    expect(
+      feedPosts.find((post) => post.id === postId)?.viewerVote,
+    ).toBeUndefined();
   });
 });

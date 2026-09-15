@@ -8,3 +8,7 @@ build/
 coverage/
 __pycache__/
 *.pyc
+.fallow/
+.agents
+*-lock.json
+mcp.json

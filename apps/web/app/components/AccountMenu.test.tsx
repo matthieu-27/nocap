@@ -15,8 +15,9 @@ describe('AccountMenu', () => {
   // vitest.setup.ts) must unmount an open Radix portal itself — wiping
   // body.innerHTML first makes React's removeChild throw.
 
-  // The buttons are shadcn `Button asChild` + react-router `Link`, so they
-  // render as anchors: their accessible role is `link`, not `button`.
+  // The CTA "buttons" are react-router `Link`s wearing shadcn `buttonVariants`
+  // classes (Base UI Button renders a native <button>, links keep link
+  // semantics), so their accessible role is `link`, not `button`.
   it('logged-out visitor sees Log in and Sign up buttons', () => {
     render(
       <MemoryRouter>
@@ -37,10 +38,10 @@ describe('AccountMenu', () => {
       </MemoryRouter>,
     );
     await user.click(screen.getByRole('button', { name: 'Account menu' }));
-    expect(screen.getByText('nocap/trackfan')).toBeInTheDocument();
     expect(
-      screen.getByRole('menuitem', { name: 'Log out' }),
+      await screen.findByRole('menuitem', { name: 'Log out' }),
     ).toBeInTheDocument();
+    expect(screen.getByText('u/trackfan')).toBeInTheDocument();
   });
 
   it('logged-in user clicking Log out calls onSignOut', async () => {
@@ -52,7 +53,7 @@ describe('AccountMenu', () => {
       </MemoryRouter>,
     );
     await user.click(screen.getByRole('button', { name: 'Account menu' }));
-    await user.click(screen.getByRole('menuitem', { name: 'Log out' }));
+    await user.click(await screen.findByRole('menuitem', { name: 'Log out' }));
     expect(onSignOut).toHaveBeenCalledTimes(1);
   });
 });

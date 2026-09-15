@@ -37,4 +37,16 @@ if (typeof document !== 'undefined') {
       });
     }
   }
+
+  // Radix Select drives pointer-capture APIs on the event target; jsdom
+  // does not implement them. They only matter for real touch/drag gestures,
+  // so no-op stubs keep menu-style interactions testable.
+  if (typeof Element.prototype.hasPointerCapture !== 'function') {
+    Element.prototype.hasPointerCapture = () => false;
+    Element.prototype.setPointerCapture = () => {};
+    Element.prototype.releasePointerCapture = () => {};
+  }
+  if (typeof Element.prototype.scrollIntoView !== 'function') {
+    Element.prototype.scrollIntoView = () => {};
+  }
 }
