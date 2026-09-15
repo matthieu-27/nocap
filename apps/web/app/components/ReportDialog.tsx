@@ -60,6 +60,9 @@ export function ReportDialog({
           <Label htmlFor="report-reason">Reason</Label>
           <Select
             value={reason}
+            // Base UI's Select.Value renders the raw value string unless Root
+            // gets an items map — REPORT_REASONS is already {value,label}[].
+            items={REPORT_REASONS}
             onValueChange={(value) => {
               // Options come from REPORT_REASONS, so the cast is safe.
               setReason(value as ReportReason);

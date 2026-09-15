@@ -20,7 +20,9 @@ describe('ReportDialog', () => {
       'Off-domain content',
     ];
     for (const label of labels) {
-      expect(screen.getByRole('option', { name: label })).toBeInTheDocument();
+      expect(
+        await screen.findByRole('option', { name: label }),
+      ).toBeInTheDocument();
     }
   });
 
@@ -33,7 +35,7 @@ describe('ReportDialog', () => {
     );
     await user.click(screen.getByRole('combobox'));
     await user.click(
-      screen.getByRole('option', { name: 'Personal information' }),
+      await screen.findByRole('option', { name: 'Personal information' }),
     );
     await user.click(screen.getByRole('button', { name: 'Report' }));
     expect(onSubmit).toHaveBeenCalledWith('personal_info');

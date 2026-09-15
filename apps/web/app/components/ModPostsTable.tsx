@@ -121,6 +121,12 @@ export function ModPostsTable({ posts }: ModPostsTableProps): ReactElement {
   ]);
 
   const channels = [...new Set(posts.map((post) => post.domainSlug))].sort();
+  // Base UI's Select.Value renders the raw value string unless Root gets an
+  // items map — build one from the same value→label pairs the menu renders.
+  const channelItems = [
+    { label: 'All channels', value: 'all' },
+    ...channels.map((slug) => ({ label: channelHandle(slug), value: slug })),
+  ];
   const data =
     channel === 'all'
       ? posts
@@ -143,7 +149,11 @@ export function ModPostsTable({ posts }: ModPostsTableProps): ReactElement {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-4">
-        <Select value={channel} onValueChange={setChannel}>
+        <Select
+          value={channel}
+          onValueChange={(value) => setChannel(value ?? 'all')}
+          items={channelItems}
+        >
           <SelectTrigger aria-label="Filter by channel" size="sm">
             <SelectValue />
           </SelectTrigger>

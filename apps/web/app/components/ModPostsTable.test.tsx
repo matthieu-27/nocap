@@ -6,8 +6,10 @@ import userEvent from '@testing-library/user-event';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { ModPostsTable } from './ModPostsTable';
 
-// Radix Select relies on pointer capture and scrollIntoView, which jsdom
+// The select popup relies on scrollIntoView and pointer capture, which jsdom
 // does not implement; without these shims the trigger never reports open.
+// (Radix needed all three; Base UI no longer uses pointer capture, but the
+// shims stay so either implementation works in this environment.)
 beforeAll(() => {
   const proto = window.HTMLElement.prototype as Partial<HTMLElement> & {
     scrollIntoView?: () => void;
@@ -98,7 +100,7 @@ describe('ModPostsTable', () => {
     expect(links()[0]?.textContent).toContain('Backwards mile claim');
   });
 
-  // Radix Select opens on pointerdown — user-event drives the full
+  // The select trigger opens on pointerdown — user-event drives the full
   // pointer sequence (same lesson as AccountMenu's DropdownMenu).
   it('mod selecting a channel filters the table to that channel', async () => {
     const user = userEvent.setup();
@@ -106,7 +108,9 @@ describe('ModPostsTable', () => {
     await user.click(
       screen.getByRole('combobox', { name: 'Filter by channel' }),
     );
-    await user.click(screen.getByRole('option', { name: 'nocap/sports' }));
+    await user.click(
+      await screen.findByRole('option', { name: 'nocap/sports' }),
+    );
 
     expect(
       screen.queryByRole('link', { name: /Goldfish learned Rust/ }),
