@@ -207,10 +207,11 @@ async function acquireSingletonLock(): Promise<boolean> {
   return rows[0]?.locked === true;
 }
 
-// Poll loop — only when run as a process (`bun run worker`); tests import
-// runOnce directly and never enter this branch (import.meta.main is false
-// under `bun test`).
-async function main(): Promise<void> {
+// Poll loop. Called by `bun run worker` (import.meta.main below) and by the
+// API process when WORKER_INLINE=1 (Render free tier has no background-worker
+// instance, so the loop folds into the API there). Tests import runOnce
+// directly and never start the loop.
+export async function startWorker(): Promise<void> {
   if (!(await acquireSingletonLock())) {
     log.error('another worker holds the advisory lock; exiting', {
       lockKey: SINGLETON_LOCK_KEY,
@@ -239,7 +240,7 @@ async function main(): Promise<void> {
 }
 
 if (import.meta.main) {
-  main().catch((error: unknown) => {
+  startWorker().catch((error: unknown) => {
     log.error('worker crashed', { error: String(error) });
     process.exitCode = 1;
   });
