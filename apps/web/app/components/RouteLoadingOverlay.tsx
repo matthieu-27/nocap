@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigation } from 'react-router';
 
-import { LoadingOverlay } from './LoadingOverlay';
+import { LoadingOverlay, type LoadingPhase } from './LoadingOverlay';
 
-export type OverlayPhase = 'hidden' | 'loading' | 'exiting';
+export type OverlayPhase = 'hidden' | LoadingPhase;
 
 /** Fast loader round-trips under this never flash the overlay. */
 const SHOW_DELAY_MS = 200;
@@ -38,5 +38,5 @@ export function RouteLoadingOverlay(): React.ReactElement | null {
   const navigation = useNavigation();
   const phase = useOverlayPhase(navigation.state !== 'idle');
   if (phase === 'hidden') return null;
-  return <LoadingOverlay phase={phase === 'exiting' ? 'exiting' : 'loading'} />;
+  return <LoadingOverlay phase={phase} />;
 }
