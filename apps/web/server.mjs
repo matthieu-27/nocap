@@ -55,7 +55,7 @@ createServer((req, res) => {
   }
   router(req, res);
 }).listen(PORT, () => {
-  console.log('web server listening', { port: PORT, apiUrl: API_URL });
+  console.info('web server listening', { port: PORT, apiUrl: API_URL });
 });
 
 // Forwards one browser request to the Hono API verbatim (method, headers,

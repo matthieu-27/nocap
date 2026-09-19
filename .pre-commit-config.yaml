@@ -1,21 +1,20 @@
-# Claim Tracker — pre-commit config
-# Install:  pip install pre-commit  (or: uv tool install pre-commit)
-#           pre-commit install
-# Update:   pre-commit autoupdate  — revs below are starting pins, not gospel
+# mytheory — pre-commit config
+# Install:   pre-commit install
+#            pre-commit install --hook-type pre-push   (fallow review gate)
+# Update:    pre-commit autoupdate
 #
-# Layout assumptions (monorepo):
-#   apps/web        React Router v8, TS          -> ESLint (flat, root config)
-#   apps/api        Hono, TS                     -> ESLint
-#   apps/worker     Python (uv)                  -> ruff + scripts/lint/*.py
-#   packages/shared TS types                      -> ESLint
+# Policy: off-the-shelf linters, configured natively — no custom scanner
+# scripts. Biome runs via the official biomejs/pre-commit mirror (isolated
+# node env, so no Windows PATH/bunx resolution issues); keep its rev in the
+# same minor as the @biomejs/biome devDependency in package.json.
 #
-# MISSING PIECES this config references (must exist before hooks pass):
-#   scripts/lint/check_*.py        — 7 Python convention checks
-#   tools/eslint-plugin-local/     — custom TS rules as ESLint plugin
-#   .vale.ini + styles/de-blab/    — Vale "de-blab" style
+# Biome (biome.json, recommended preset) already covers the old hand-rolled
+# checks: empty catch (noEmptyBlock), useless catch, explicit any,
+# non-null assertions, exhaustive deps, formatting, import organization.
+# apps/worker does not exist yet — add a ruff-pre-commit hook when it does.
 
 repos:
-  # ---------- generic hygiene ----------
+  # ---------- hygiene ----------
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
@@ -26,118 +25,16 @@ repos:
       - id: check-added-large-files
         args: [--maxkb=500]
 
-  # ---------- python: lint (worker) ----------
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.16.5
+  # ---------- typescript/javascript: biome ----------
+  - repo: https://github.com/biomejs/pre-commit
+    rev: v2.5.14
     hooks:
-      - id: ruff
-        args: [--fix]
-        files: ^apps/worker/.*\.py$
-
-  # ---------- python: project conventions ----------
-  # Each script receives staged filenames as argv and exits non-zero on violation.
-  # `uv run python` because a bare `python` shim on this machine requires uv.
-  - repo: local
-    hooks:
-      - id: check-no-mock
-        name: check_no_mock — no mock/patch hiding real problems
-        entry: uv run python scripts/lint/check_no_mock.py
-        language: system
-        files: ^apps/worker/tests/.*\.py$
-
-      - id: check-no-factories
-        name: check_no_factories — parametrized fixtures over factories
-        entry: uv run python scripts/lint/check_no_factories.py
-        language: system
-        files: ^apps/worker/tests/.*\.py$
-
-      - id: check-service-purity
-        name: check_service_purity — no presentation code in service layer
-        entry: uv run python scripts/lint/check_service_purity.py
-        language: system
-        files: ^apps/worker/src/services/.*\.py$
-
-      - id: check-except-log-level
-        name: check_except_log_level — appropriate level in except blocks
-        entry: uv run python scripts/lint/check_except_log_level.py
-        language: system
-        files: ^apps/worker/.*\.py$
-
-      - id: check-app-logger
-        name: check_app_logger — instrumented app logger only
-        entry: uv run python scripts/lint/check_app_logger.py
-        language: system
-        files: ^apps/worker/.*\.py$
-
-      - id: check-test-names
-        name: check_test_names — actor_action_effect in test names
-        entry: uv run python scripts/lint/check_test_names.py
-        language: system
-        files: ^apps/worker/tests/.*\.py$
-
-      - id: check-import-direction
-        name: check_import_direction — services never import presentation
-        entry: uv run python scripts/lint/check_import_direction.py
-        language: system
-        files: ^apps/worker/src/services/.*\.py$
-
-  # ---------- typescript: project conventions (line scanners) ----------
-  # Ported from the ESLint-era rules: Biome's embedded Grit engine (2.5.x)
-  # has no regex/like predicates and statement-level backtick patterns do not
-  # match — so these six run as python scanners instead of grit plugins.
-  - repo: local
-    hooks:
-      - id: check-no-swallowed-errors
-        name: check_no_swallowed_errors — empty catch must re-throw or log
-        entry: uv run python scripts/lint/check_no_swallowed_errors.py
-        language: system
-        files: ^(apps|packages|tools)/.*\.(ts|tsx|js|jsx|mjs)$
-
-      - id: check-no-interpolated-console
-        name: check_no_interpolated_console — structured logging over templates
-        entry: uv run python scripts/lint/check_no_interpolated_console.py
-        language: system
-        files: ^(apps|packages|tools)/.*\.(ts|tsx|js|jsx|mjs)$
-
-      - id: check-no-render-helpers
-        name: check_no_render_helpers — JSX functions must be components
-        entry: uv run python scripts/lint/check_no_render_helpers.py
-        language: system
-        files: ^(apps|packages|tools)/.*\.(ts|tsx|js|jsx|mjs)$
-
-      - id: check-no-setter-only-effect
-        name: check_no_setter_only_effect — derive instead of setter-only effect
-        entry: uv run python scripts/lint/check_no_setter_only_effect.py
-        language: system
-        files: ^(apps|packages|tools)/.*\.(ts|tsx|js|jsx|mjs)$
-
-      - id: check-descriptive-test-names
-        name: check_descriptive_test_names — plain-words test descriptions
-        entry: uv run python scripts/lint/check_descriptive_test_names.py
-        language: system
-        files: ^(apps|packages|tools)/.*\.(ts|tsx|js|jsx|mjs)$
-
-      - id: check-require-assertion-reason
-        name: check_require_assertion_reason — assertions need a reason
-        entry: uv run python scripts/lint/check_require_assertion_reason.py
-        language: system
-        files: ^(apps|packages|tools)/.*\.(ts|tsx|js|jsx|mjs)$
-
-  # ---------- typescript: biome (standards + formatter) ----------
-  # Custom TS conventions live in the python scanner hooks above;
-  # biome covers recommended rules, formatting, and import organization.
-  # Policy: zero warnings — --error-on-warnings makes any warning fail.
-  - repo: local
-    hooks:
-      - id: biome
-        name: biome — lint + format, zero warnings
-        entry: uv run python scripts/lint/run_biome.py
-        language: system
-        files: ^(apps|packages|tools)/.*\.(ts|tsx|js|jsx|mjs|json)$
+      - id: biome-check
+        args: [--error-on-warnings]
 
   # ---------- review: fallow (pre-push stage) ----------
-  # Register with: pre-commit install --hook-type pre-push
   # Findings get addressed or explicitly justified, never ignored.
+  # pass_filenames: fallow computes its own diff; positional args error out.
   - repo: local
     hooks:
       - id: fallow
@@ -145,13 +42,4 @@ repos:
         entry: npx fallow
         language: system
         stages: [pre-push]
-
-  # ---------- prose: de-blab ----------
-  # Requires vale binary + .vale.ini + styles/de-blab (comment/docstring/MD checks)
-  - repo: local
-    hooks:
-      - id: vale
-        name: vale — de-blab comments, docstrings, markdown
-        entry: vale
-        language: system
-        files: ^(docs/.*\.md|apps/worker/.*\.py|README\.md)$
+        pass_filenames: false
