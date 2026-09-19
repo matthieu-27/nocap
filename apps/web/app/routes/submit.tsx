@@ -100,15 +100,8 @@ export async function loader({
   }
 }
 
-// Frame 03 — a real route, not a dialog. Signed-out visitors get the login
-// CTA (no redirect dance, same as the comment composer); the source-type
-// chips are guidance only — provider detection stays server-side, so the
-// payload is exactly { domainSlug, title, body?, url }.
-export default function SubmitRoute({
-  loaderData,
-}: Route.ComponentProps): ReactElement {
-  const { domains } = loaderData;
-  const { data: session } = authClient.useSession();
+// All mutable form state lives here so SubmitRoute stays a thin composition.
+function useSubmitForm(domains: DomainDto[]) {
   const navigate = useNavigate();
 
   const [domainSlug, setDomainSlug] = useState(domains[0]?.slug ?? '');
@@ -120,13 +113,6 @@ export default function SubmitRoute({
   const [urlError, setUrlError] = useState<string | null>(null);
   const [serverError, setServerError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
-
-  // Base UI's Select.Value renders the raw value unless Root gets an items
-  // map — slug ≠ display name, so the map is required here.
-  const channelItems = domains.map((domain) => ({
-    label: domain.name,
-    value: domain.slug,
-  }));
 
   async function handleSubmit(event: FormEvent): Promise<void> {
     event.preventDefault();
@@ -161,20 +147,175 @@ export default function SubmitRoute({
     }
   }
 
+  return {
+    domainSlug,
+    setDomainSlug,
+    title,
+    setTitle,
+    sourceType,
+    setSourceType,
+    url,
+    setUrl,
+    body,
+    setBody,
+    titleError,
+    urlError,
+    serverError,
+    pending,
+    handleSubmit,
+  };
+}
+
+type SubmitForm = ReturnType<typeof useSubmitForm>;
+
+// Signed-out visitors get the login CTA (no redirect dance, same as the
+// comment composer).
+function SignedOutCallout(): ReactElement {
+  return (
+    <main className="grid min-h-screen place-items-center p-6">
+      <div className="flex w-full max-w-xl flex-col items-start gap-4">
+        <h1 className="text-2xl font-bold">Submit a claim</h1>
+        <p className="text-sm text-muted-foreground">
+          Log in to post a claim for the crowd to check.
+        </p>
+        <Link to="/login" className={buttonVariants()}>
+          Log in to post
+        </Link>
+      </div>
+    </main>
+  );
+}
+
+// Source-type chips are guidance only — provider detection stays server-side,
+// so the payload is exactly { domainSlug, title, body?, url }.
+function SourceTypeChips({
+  value,
+  onChange,
+}: {
+  value: ProviderId | null;
+  onChange: (next: ProviderId | null) => void;
+}): ReactElement {
+  return (
+    <Field>
+      <FieldLabel>Source type</FieldLabel>
+      <ToggleGroup
+        aria-label="Source type"
+        value={value === null ? [] : [value]}
+        onValueChange={(values) => onChange(toProviderId(values.at(-1)))}
+      >
+        {SUPPORTED_PROVIDERS.map((provider) => (
+          <ToggleGroupItem key={provider} value={provider}>
+            {PROVIDER_LABELS[provider]}
+          </ToggleGroupItem>
+        ))}
+        {V2_PROVIDERS.map((provider) => (
+          <ToggleGroupItem key={provider.value} value={provider.value} disabled>
+            {provider.label}
+            <Badge variant="secondary">v2</Badge>
+          </ToggleGroupItem>
+        ))}
+      </ToggleGroup>
+      <FieldDescription>
+        Detection is automatic — the chip only updates the hint below.
+      </FieldDescription>
+    </Field>
+  );
+}
+
+function SubmitFormFields({
+  form,
+  domains,
+}: {
+  form: SubmitForm;
+  domains: DomainDto[];
+}): ReactElement {
+  // Base UI's Select.Value renders the raw value unless Root gets an items
+  // map — slug ≠ display name, so the map is required here.
+  const channelItems = domains.map((domain) => ({
+    label: domain.name,
+    value: domain.slug,
+  }));
+
+  return (
+    <FieldGroup>
+      <Field>
+        <FieldLabel htmlFor="submit-channel">Channel</FieldLabel>
+        <Select
+          value={form.domainSlug}
+          onValueChange={(value) => form.setDomainSlug(value ?? '')}
+          items={channelItems}
+        >
+          <SelectTrigger id="submit-channel" className="w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              {domains.map((domain) => (
+                <SelectItem key={domain.slug} value={domain.slug}>
+                  {domain.name}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      </Field>
+
+      <Field data-invalid={form.titleError !== null || undefined}>
+        <FieldLabel htmlFor="submit-title">Title</FieldLabel>
+        <Input
+          id="submit-title"
+          value={form.title}
+          onChange={(event) => form.setTitle(event.target.value)}
+          aria-invalid={form.titleError !== null || undefined}
+          placeholder="State the claim as a question"
+        />
+        {form.titleError !== null && <FieldError>{form.titleError}</FieldError>}
+      </Field>
+
+      <SourceTypeChips value={form.sourceType} onChange={form.setSourceType} />
+
+      <Field data-invalid={form.urlError !== null || undefined}>
+        <FieldLabel htmlFor="submit-url">Source URL</FieldLabel>
+        <Input
+          id="submit-url"
+          value={form.url}
+          onChange={(event) => form.setUrl(event.target.value)}
+          aria-invalid={form.urlError !== null || undefined}
+          placeholder="https://…"
+        />
+        <FieldDescription>
+          {form.sourceType === null
+            ? DEFAULT_URL_HINT
+            : PROVIDER_HINTS[form.sourceType]}
+        </FieldDescription>
+        {form.urlError !== null && <FieldError>{form.urlError}</FieldError>}
+      </Field>
+
+      <Field>
+        <FieldLabel htmlFor="submit-body">Body</FieldLabel>
+        <Textarea
+          id="submit-body"
+          value={form.body}
+          onChange={(event) => form.setBody(event.target.value)}
+          placeholder="Optional context — what you already verified"
+          rows={5}
+        />
+      </Field>
+    </FieldGroup>
+  );
+}
+
+// Frame 03 — a real route, not a dialog.
+export default function SubmitRoute({
+  loaderData,
+}: Route.ComponentProps): ReactElement {
+  const { domains } = loaderData;
+  const { data: session } = authClient.useSession();
+  const navigate = useNavigate();
+  const form = useSubmitForm(domains);
+
   if (session?.user == null) {
-    return (
-      <main className="grid min-h-screen place-items-center p-6">
-        <div className="flex w-full max-w-xl flex-col items-start gap-4">
-          <h1 className="text-2xl font-bold">Submit a claim</h1>
-          <p className="text-sm text-muted-foreground">
-            Log in to post a claim for the crowd to check.
-          </p>
-          <Link to="/login" className={buttonVariants()}>
-            Log in to post
-          </Link>
-        </div>
-      </main>
-    );
+    return <SignedOutCallout />;
   }
 
   return (
@@ -187,114 +328,21 @@ export default function SubmitRoute({
           </p>
         </div>
 
-        {serverError !== null && (
+        {form.serverError !== null && (
           <Alert variant="destructive">
-            <AlertDescription>{serverError}</AlertDescription>
+            <AlertDescription>{form.serverError}</AlertDescription>
           </Alert>
         )}
 
         <form
           className="flex flex-col gap-6"
-          onSubmit={(event) => void handleSubmit(event)}
+          onSubmit={(event) => void form.handleSubmit(event)}
         >
-          <FieldGroup>
-            <Field>
-              <FieldLabel htmlFor="submit-channel">Channel</FieldLabel>
-              <Select
-                value={domainSlug}
-                onValueChange={(value) => setDomainSlug(value ?? '')}
-                items={channelItems}
-              >
-                <SelectTrigger id="submit-channel" className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    {domains.map((domain) => (
-                      <SelectItem key={domain.slug} value={domain.slug}>
-                        {domain.name}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </Field>
-
-            <Field data-invalid={titleError !== null || undefined}>
-              <FieldLabel htmlFor="submit-title">Title</FieldLabel>
-              <Input
-                id="submit-title"
-                value={title}
-                onChange={(event) => setTitle(event.target.value)}
-                aria-invalid={titleError !== null || undefined}
-                placeholder="State the claim as a question"
-              />
-              {titleError !== null && <FieldError>{titleError}</FieldError>}
-            </Field>
-
-            <Field>
-              <FieldLabel>Source type</FieldLabel>
-              <ToggleGroup
-                aria-label="Source type"
-                value={sourceType === null ? [] : [sourceType]}
-                onValueChange={(values) =>
-                  setSourceType(toProviderId(values.at(-1)))
-                }
-              >
-                {SUPPORTED_PROVIDERS.map((provider) => (
-                  <ToggleGroupItem key={provider} value={provider}>
-                    {PROVIDER_LABELS[provider]}
-                  </ToggleGroupItem>
-                ))}
-                {V2_PROVIDERS.map((provider) => (
-                  <ToggleGroupItem
-                    key={provider.value}
-                    value={provider.value}
-                    disabled
-                  >
-                    {provider.label}
-                    <Badge variant="secondary">v2</Badge>
-                  </ToggleGroupItem>
-                ))}
-              </ToggleGroup>
-              <FieldDescription>
-                Detection is automatic — the chip only updates the hint below.
-              </FieldDescription>
-            </Field>
-
-            <Field data-invalid={urlError !== null || undefined}>
-              <FieldLabel htmlFor="submit-url">Source URL</FieldLabel>
-              <Input
-                id="submit-url"
-                value={url}
-                onChange={(event) => setUrl(event.target.value)}
-                aria-invalid={urlError !== null || undefined}
-                placeholder="https://…"
-              />
-              <FieldDescription>
-                {sourceType === null
-                  ? DEFAULT_URL_HINT
-                  : PROVIDER_HINTS[sourceType]}
-              </FieldDescription>
-              {urlError !== null && <FieldError>{urlError}</FieldError>}
-            </Field>
-
-            <Field>
-              <FieldLabel htmlFor="submit-body">Body</FieldLabel>
-              <Textarea
-                id="submit-body"
-                value={body}
-                onChange={(event) => setBody(event.target.value)}
-                placeholder="Optional context — what you already verified"
-                rows={5}
-              />
-            </Field>
-          </FieldGroup>
-
+          <SubmitFormFields form={form} domains={domains} />
           <div className="flex gap-2">
-            <Button type="submit" disabled={pending}>
+            <Button type="submit" disabled={form.pending}>
               Post claim
-              {pending && <Spinner data-icon="inline-end" />}
+              {form.pending && <Spinner data-icon="inline-end" />}
             </Button>
             <Button
               type="button"
