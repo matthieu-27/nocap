@@ -472,13 +472,13 @@ interface PostCardProps {
 
 - Produces: Frame 06 — header (avatar initials, `userHandle`, stats: swag / posts / comments / member since), Posts|Comments tabs, mini post rows, right card with the swag breakdown.
 
-- [ ] **Step 1: loader** — `apiFetch('/api/users/:username')` → `UserProfileDto`; 404 → error boundary. Unknown-user test lives at the component level.
+- [x] **Step 1: loader** — `apiFetch('/api/users/:username')` → `UserProfileDto`; 404 → error boundary. Unknown-user test lives at the component level.
 
-- [ ] **Step 2: render** — header per frame: `Avatar` + `AvatarFallback` with initials (first two chars uppercased), `userHandle(username)` as h3, stats row `swag | posts | comments | member since <Mon YYYY>` (`Intl.DateTimeFormat('en', { month:'short', year:'numeric' })`). Tabs `Posts | Comments` (client-side `Tabs`): Posts = mini rows (channel badge, title link to `/p/:id`, `+score` in up-token color, `· timeAgo · N comments` — comments count unknown on profile rows, omit it and keep `· timeAgo`); Comments tab = count-only in v1: a muted card `N comments across the site — comment browsing arrives in v2` (frame note: "comments count-only in v1"). Right card `Swag breakdown`: `Card` composition (`CardHeader` + `CardTitle` + `CardContent` holding the two stat rows) with `post swag` / `comment swag` values + hint `recounted periodically from raw votes — self-healing`.
+- [x] **Step 2: render** — header per frame: `Avatar` + `AvatarFallback` with initials (first two chars uppercased), `userHandle(username)` as h3, stats row `swag | posts | comments | member since <Mon YYYY>` (`Intl.DateTimeFormat('en', { month:'short', year:'numeric' })`). Tabs `Posts | Comments` (client-side `Tabs`): Posts = mini rows (channel badge, title link to `/p/:id`, `+score` in up-token color, `· timeAgo · N comments` — comments count unknown on profile rows, omit it and keep `· timeAgo`); Comments tab = count-only in v1: a muted card `N comments across the site — comment browsing arrives in v2` (frame note: "comments count-only in v1"). Right card `Swag breakdown`: `Card` composition (`CardHeader` + `CardTitle` + `CardContent` holding the two stat rows) with `post swag` / `comment swag` values + hint `recounted periodically from raw votes — self-healing`.
 
-- [ ] **Step 3: Tests** — header stats render from fixture DTO; posts tab lists rows with links; comments tab shows the count-only note; breakdown card shows both numbers.
+- [x] **Step 3: Tests** — header stats render from fixture DTO; posts tab lists rows with links; comments tab shows the count-only note; breakdown card shows both numbers.
 
-- [ ] **Step 4: Verify + commit** — `bun run check`, `vitest run apps/web`, typecheck. Commit: `feat: public profile page with swag breakdown and post history`.
+- [x] **Step 4: Verify + commit** — `bun run check`, `vitest run apps/web`, typecheck. Commit: `feat: public profile page with swag breakdown and post history`.
 
 ---
 
