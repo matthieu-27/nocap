@@ -12,3 +12,9 @@ __pycache__/
 .agents
 *-lock.json
 mcp.json
+
+# deploy secrets — local only, never commit
+hetzner.md
+.render-auth.tmp
+.render-env-backend.json
+.render-env-web.json
