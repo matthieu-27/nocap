@@ -10,6 +10,7 @@ import {
   useRouteError,
 } from 'react-router';
 import './styles.css';
+import { RouteLoadingOverlay } from '@/components/RouteLoadingOverlay';
 import { buttonVariants } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/sonner';
 import { ThemeProvider } from '@/contexts/theme-provider';
@@ -32,6 +33,7 @@ export function Layout({
       </head>
       <body>
         <ThemeProvider defaultTheme="dark" storageKey="nocap-theme">
+          <RouteLoadingOverlay />
           {children}
           <ScrollRestoration />
           <Toaster richColors position="bottom-right" />
