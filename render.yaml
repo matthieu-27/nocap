@@ -6,10 +6,15 @@
 # whole Bun workspace, and START_PATH selects the entry point per service
 # (Render background workers are paid-only, so the embed worker runs
 # inline in the API process behind WORKER_INLINE=1).
+#
+# Service names are no-cap / no-cap-api because the onrender.com subdomain
+# is minted from the name AT CREATION and can never be renamed — the clean
+# nocap / nocap-backend names were released by the 2026-09-15 renames and
+# squatted before we could reclaim them.
 previewsEnabled: false
 services:
   - type: web
-    name: nocap-backend
+    name: no-cap-api
     runtime: docker
     repo: https://github.com/matthieu-27/nocap.git
     branch: main
@@ -21,22 +26,24 @@ services:
     autoDeploy: true
     envVars:
       # Neon Postgres connection string. sync: false keeps it out of the
-      # repo; Render prompts for it on the first blueprint deploy.
+      # repo; Render prompts for it on the first blueprint deploy — the
+      # prompt fires ONLY at creation, so keep .render-env-backend.json
+      # (gitignored) as the recovery copy.
       - key: DATABASE_URL
         sync: false
       - key: BETTER_AUTH_SECRET
         generateValue: true
       - key: BETTER_AUTH_URL
-        value: https://nocap-backend.onrender.com/
+        value: https://no-cap-api.onrender.com/
       - key: WEB_ORIGIN
-        value: https://nocap.onrender.com
+        value: https://no-cap.onrender.com
       - key: WORKER_INLINE
         value: "1"
       - key: START_PATH
         value: apps/api/src/index.ts
 
   - type: web
-    name: nocap
+    name: no-cap
     runtime: docker
     repo: https://github.com/matthieu-27/nocap.git
     branch: main
@@ -48,6 +55,6 @@ services:
     autoDeploy: true
     envVars:
       - key: API_URL
-        value: https://nocap-backend.onrender.com
+        value: https://no-cap-api.onrender.com
       - key: START_PATH
         value: apps/web/server.mjs
