@@ -21,7 +21,9 @@ repos:
       - id: check-yaml
       - id: check-merge-conflict
       - id: trailing-whitespace
+        exclude: ^styles/ # vendored vale package — not ours to reformat
       - id: end-of-file-fixer
+        exclude: ^styles/
       - id: check-added-large-files
         args: [--maxkb=500]
 
@@ -31,6 +33,18 @@ repos:
     hooks:
       - id: biome-check
         args: [--error-on-warnings]
+
+  # ---------- prose: vale (de-blab + write-good) ----------
+  # Binary: vale on PATH (installed to ~/.local/bin). The write-good package
+  # under styles/ is committed for offline runs; `vale sync` refreshes it.
+  # What gets linted is scoped in .vale.ini, not here.
+  - repo: local
+    hooks:
+      - id: vale
+        name: vale — de-blab markdown
+        entry: vale
+        language: system
+        files: \.md$
 
   # ---------- review: fallow (pre-push stage) ----------
   # Findings get addressed or explicitly justified, never ignored.
