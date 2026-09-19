@@ -69,8 +69,10 @@ For non-skill agents, treat the task map below as the local onboarding source: r
 |---|---|
 | delete an "unused" export or file | `fallow dead-code --trace <file>:<export>` |
 | prove a TypeScript symbol's exact consumers before refactoring | `fallow dead-code --type-aware --symbol-impact <file>:<export-or-class.method>` |
+| find how one module reaches another | `fallow trace --path <from> <to>` (Reports `reachable: false` instead of failing when no import path exists; type-only hops are reported, not skipped.) |
 | delete an "unused" dependency | `fallow dead-code --trace-dependency <name>` |
 | commit or open a PR | `fallow audit --base <ref>` |
+| read a diff before approving it | `fallow review --base <ref> --brief` (orientation, never gates: deterministic and always exit 0, unlike the audit row) |
 | prioritize refactoring | `fallow health --hotspots --targets` |
 | ask who owns code | `fallow health --ownership` |
 | check untested-but-reachable code | `fallow health --coverage-gaps` |
