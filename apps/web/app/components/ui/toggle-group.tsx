@@ -1,6 +1,5 @@
 // Registry primitive (shadcn toggle-group): the exported family is
 // intentionally complete — members light up as screens consume them.
-// fallow-ignore-file unused-export
 'use client';
 
 import { Toggle as TogglePrimitive } from '@base-ui/react/toggle';
