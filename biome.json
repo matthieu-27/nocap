@@ -21,12 +21,30 @@
       "formatter": {
         "enabled": false
       }
+    },
+    {
+      "includes": ["apps/api/src/logger.ts"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noConsole": "off"
+          }
+        }
+      }
     }
   ],
   "linter": {
     "enabled": true,
     "rules": {
-      "preset": "recommended"
+      "preset": "recommended",
+      "suspicious": {
+        "noConsole": {
+          "level": "error",
+          "options": {
+            "allow": ["error", "info", "warn"]
+          }
+        }
+      }
     }
   },
   "formatter": {

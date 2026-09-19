@@ -5,6 +5,7 @@
   "scripts": {
     "check": "bunx @biomejs/biome check --error-on-warnings",
     "check:fix": "bunx @biomejs/biome check --fix --error-on-warnings",
+    "dev": "bun run --filter './apps/*' dev",
     "test": "vitest run"
   },
   "devDependencies": {
