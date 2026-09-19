@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="saucer" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9d80ff" />
+      <stop offset="1" stop-color="#453079" />
+    </linearGradient>
+  </defs>
+
+  <!-- tile: contrast on any tab background, light or dark -->
+  <rect width="64" height="64" rx="14" fill="#170d2b" />
+
+  <!-- 16px = three bold shapes only: cap above, glow gap, dome on disc -->
+  <g transform="translate(32 32) scale(0.88) translate(-32 -32)">
+    <circle cx="32" cy="14" r="8.5" fill="#e8e4f4" />
+    <ellipse cx="32" cy="26" rx="7" ry="2.2" fill="#a78bfa" opacity="0.45" />
+    <path d="M23 44 Q32 33 41 44 Z" fill="#e6dcff" opacity="0.95" />
+    <ellipse cx="32" cy="45.5" rx="20" ry="7" fill="url(#saucer)" />
+    <ellipse cx="32" cy="49" rx="11" ry="2.8" fill="#3d2a6e" />
+  </g>
+</svg>
