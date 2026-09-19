@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="nocap-logo-title">
+  <title id="nocap-logo-title">NoCaP: a flying saucer tractor-beaming a bottle cap upward</title>
+  <defs>
+    <linearGradient id="saucer" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9d80ff" />
+      <stop offset="1" stop-color="#453079" />
+    </linearGradient>
+    <linearGradient id="beam" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#a78bfa" stop-opacity="0.65" />
+      <stop offset="1" stop-color="#a78bfa" stop-opacity="0.1" />
+    </linearGradient>
+  </defs>
+
+  <!-- tractor beam: narrow so background separates it from the dome shoulders -->
+  <path d="M29 28.5 Q28.4 37.5 28.5 46.5 L35.5 46.5 Q35.6 37.5 35 28.5 Z" fill="url(#beam)" />
+
+  <!-- bottle cap, tilted as it lifts: flange teeth alternate size, inset ring inside -->
+  <g transform="rotate(-10 32 17)">
+    <circle cx="32" cy="17" r="7.5" fill="none" stroke="#d5cfe9" stroke-width="2.2" stroke-dasharray="4.3 0.9 3.3 1.9" transform="rotate(14 32 17)" />
+    <circle cx="32" cy="17" r="7" fill="#e8e4f4" />
+    <circle cx="32" cy="17" r="4.3" fill="none" stroke="#c9c2de" stroke-width="1.2" />
+  </g>
+
+  <!-- dome: near-opaque with a bright rim so it reads as a cockpit, not beam glow -->
+  <path d="M23.5 45 Q32 33.5 40.5 45 Z" fill="#e6dcff" opacity="0.95" stroke="#f2ecff" stroke-width="1" />
+
+  <!-- saucer body, rim light, hull kept inside the body ellipse -->
+  <ellipse cx="32" cy="46" rx="17" ry="5.6" fill="url(#saucer)" />
+  <ellipse cx="32" cy="46" rx="17" ry="5.6" fill="none" stroke="#a88dfc" stroke-width="1" opacity="0.9" />
+  <ellipse cx="32" cy="49" rx="8.5" ry="2.4" fill="#3d2a6e" />
+
+  <!-- rim lights -->
+  <circle cx="23" cy="46.6" r="1.25" fill="#cbb8ff" />
+  <circle cx="32" cy="47.6" r="1.1" fill="#cbb8ff" />
+  <circle cx="41" cy="46.6" r="1.25" fill="#cbb8ff" />
+</svg>
