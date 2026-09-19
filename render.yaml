@@ -19,12 +19,6 @@ services:
     dockerContext: .
     healthCheckPath: /api/health
     autoDeploy: true
-    # Reclaim the clean onrender.com subdomains: the 2026-09-15 service
-    # renames released the old claims and minted random ones
-    # (nocap-backend-myxa), which broke the env vars below that still
-    # point at the clean URLs.
-    domains:
-      - nocap-backend.onrender.com
     envVars:
       # Neon Postgres connection string. sync: false keeps it out of the
       # repo; Render prompts for it on the first blueprint deploy.
@@ -52,8 +46,6 @@ services:
     dockerContext: .
     healthCheckPath: /
     autoDeploy: true
-    domains:
-      - nocap.onrender.com
     envVars:
       - key: API_URL
         value: https://nocap-backend.onrender.com
