@@ -195,3 +195,81 @@
   --font-sans: 'Geist Variable', Geist, system-ui, sans-serif;
   --font-mono: 'Space Mono', monospace;
 }
+
+/* NoCaP loading overlay: saucer wobble while loading, fly-away exit when
+   done. Pulse and beam share a cycle so every pulse leaves a fading beam. */
+@keyframes nocap-wobble {
+  from {
+    transform: translateX(-14px) rotate(-3deg);
+  }
+  to {
+    transform: translateX(14px) rotate(3deg);
+  }
+}
+@keyframes nocap-pulse {
+  0% {
+    opacity: 0.35;
+    transform: scale(0.75);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 0.35;
+    transform: scale(0.75);
+  }
+}
+@keyframes nocap-beam {
+  0% {
+    opacity: 0;
+    transform: scaleY(0.3);
+  }
+  25% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+    transform: scaleY(1);
+  }
+}
+@keyframes nocap-fly {
+  to {
+    transform: translateY(-120vh);
+  }
+}
+@keyframes nocap-fade {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+.nocap-wobble {
+  animation: nocap-wobble 1.6s ease-in-out infinite alternate;
+}
+.nocap-pulse {
+  animation: nocap-pulse 2.4s ease-in-out infinite;
+}
+.nocap-beam {
+  animation: nocap-beam 2.4s ease-out infinite;
+}
+.nocap-exit .nocap-wobble,
+.nocap-exit .nocap-pulse,
+.nocap-exit .nocap-beam {
+  animation: none;
+}
+.nocap-exit .nocap-ship {
+  animation: nocap-fly 0.5s cubic-bezier(0.5, 0, 0.9, 0.6) forwards;
+}
+.nocap-exit {
+  animation: nocap-fade 0.55s ease-out 0.1s forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nocap-wobble,
+  .nocap-pulse,
+  .nocap-beam {
+    animation: none;
+  }
+}
