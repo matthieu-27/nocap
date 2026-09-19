@@ -8,14 +8,29 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-describe('useOverlayPhase', () => {
-  it('stays hidden while loading finishes under the debounce', () => {
-    vi.useFakeTimers();
-    const { result, rerender } = renderHook(
-      ({ loading }: { loading: boolean }) => useOverlayPhase(loading),
-      { initialProps: { loading: true } },
-    );
+function renderPhase(initialLoading: boolean) {
+  const utils = renderHook(
+    ({ loading }: { loading: boolean }) => useOverlayPhase(loading),
+    { initialProps: { loading: initialLoading } },
+  );
+  return utils;
+}
 
+describe('useOverlayPhase', () => {
+  it('shows instantly when a load is already pending at mount', () => {
+    vi.useFakeTimers();
+    const { result } = renderPhase(true);
+    expect(result.current).toBe('loading');
+  });
+
+  it('stays hidden through a load blip that starts while idle', () => {
+    vi.useFakeTimers();
+    const { result, rerender } = renderPhase(false);
+
+    rerender({ loading: true });
+    act(() => {
+      vi.advanceTimersByTime(150);
+    });
     rerender({ loading: false });
     act(() => {
       vi.advanceTimersByTime(500);
@@ -23,13 +38,11 @@ describe('useOverlayPhase', () => {
     expect(result.current).toBe('hidden');
   });
 
-  it('shows the overlay after the debounce while loading continues', () => {
+  it('debounces a load that starts while idle, then shows it', () => {
     vi.useFakeTimers();
-    const { result } = renderHook(
-      ({ loading }: { loading: boolean }) => useOverlayPhase(loading),
-      { initialProps: { loading: true } },
-    );
+    const { result, rerender } = renderPhase(false);
 
+    rerender({ loading: true });
     act(() => {
       vi.advanceTimersByTime(199);
     });
@@ -43,14 +56,8 @@ describe('useOverlayPhase', () => {
 
   it('plays the exit phase after loading ends, then hides', () => {
     vi.useFakeTimers();
-    const { result, rerender } = renderHook(
-      ({ loading }: { loading: boolean }) => useOverlayPhase(loading),
-      { initialProps: { loading: true } },
-    );
+    const { result, rerender } = renderPhase(true);
 
-    act(() => {
-      vi.advanceTimersByTime(200);
-    });
     rerender({ loading: false });
     expect(result.current).toBe('exiting');
 
@@ -62,14 +69,8 @@ describe('useOverlayPhase', () => {
 
   it('returns to loading when a new load starts during the exit', () => {
     vi.useFakeTimers();
-    const { result, rerender } = renderHook(
-      ({ loading }: { loading: boolean }) => useOverlayPhase(loading),
-      { initialProps: { loading: true } },
-    );
+    const { result, rerender } = renderPhase(true);
 
-    act(() => {
-      vi.advanceTimersByTime(200);
-    });
     rerender({ loading: false });
     expect(result.current).toBe('exiting');
 
