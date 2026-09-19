@@ -36,7 +36,9 @@ export function useOverlayPhase(loading: boolean): OverlayPhase {
 /** Shows the saucer overlay while route loaders run, then flies it away. */
 export function RouteLoadingOverlay(): React.ReactElement | null {
   const navigation = useNavigation();
-  const phase = useOverlayPhase(navigation.state !== 'idle');
+  // 'loading' only — 'submitting' (form POSTs) keeps the form visible
+  // under the user's cursor instead of a full-screen overlay
+  const phase = useOverlayPhase(navigation.state === 'loading');
   if (phase === 'hidden') return null;
   return <LoadingOverlay phase={phase} />;
 }
