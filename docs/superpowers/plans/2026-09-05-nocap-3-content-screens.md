@@ -451,13 +451,13 @@ interface PostCardProps {
 
 - Produces: Frame 03 — full-screen form: Channel select, Title, Source type, Source URL, Body, Post claim / Go back. `SUPPORTED_PROVIDERS` drives the type row; Instagram/Facebook shown disabled with `v2` chips.
 
-- [ ] **Step 1: loader + gate** — loader: `requireUser` equivalent for the web = fetch `/api/auth/getSession`-backed check via `apiFetch('/api/posts' …)` is wrong; use the shell's pattern — the page renders signed-out state with a login CTA (same as auth pages pattern), no redirect dance. Channel options from `apiFetch('/api/domains')`.
+- [x] **Step 1: loader + gate** — loader: `requireUser` equivalent for the web = fetch `/api/auth/getSession`-backed check via `apiFetch('/api/posts' …)` is wrong; use the shell's pattern — the page renders signed-out state with a login CTA (same as auth pages pattern), no redirect dance. Channel options from `apiFetch('/api/domains')`.
 
-- [ ] **Step 2: form** — controlled state per field, laid out with `FieldGroup` + `Field` + `FieldLabel` (Channel = `Select` with `SelectItem`s inside a `SelectGroup`; Title/URL = `Input`; Body = `Textarea`). Source type row: shadcn `ToggleGroup type="single"` with a `ToggleGroupItem` per `SUPPORTED_PROVIDERS` entry, plus `instagram reel` / `facebook reel` items `disabled` with a `v2` `Badge` — selecting a type only changes the hint text under the URL field (`Paste a YouTube link` etc.); detection stays server-side (`detectProvider` in the worker), the chip is UI guidance, not a payload field (API contract: `domainSlug, title, body?, url` — do not add fields). Inline validation mirrors the service: title 5–300, URL parses as http/https — invalid fields set `data-invalid` on the `Field` + `aria-invalid` on the control + a `FieldError` message. Submit → `apiJson POST /api/posts` with the button showing `Spinner data-icon="inline-end"` + `disabled` while pending (Button has no isPending — compose it) → success: toast `Post created` + `navigate('/p/' + id)`. Server 400/403 (locked domain): `Alert` with the message. Go back = `navigate(-1)`.
+- [x] **Step 2: form** — controlled state per field, laid out with `FieldGroup` + `Field` + `FieldLabel` (Channel = `Select` with `SelectItem`s inside a `SelectGroup`; Title/URL = `Input`; Body = `Textarea`). Source type row: shadcn `ToggleGroup type="single"` with a `ToggleGroupItem` per `SUPPORTED_PROVIDERS` entry, plus `instagram reel` / `facebook reel` items `disabled` with a `v2` `Badge` — selecting a type only changes the hint text under the URL field (`Paste a YouTube link` etc.); detection stays server-side (`detectProvider` in the worker), the chip is UI guidance, not a payload field (API contract: `domainSlug, title, body?, url` — do not add fields). Inline validation mirrors the service: title 5–300, URL parses as http/https — invalid fields set `data-invalid` on the `Field` + `aria-invalid` on the control + a `FieldError` message. Submit → `apiJson POST /api/posts` with the button showing `Spinner data-icon="inline-end"` + `disabled` while pending (Button has no isPending — compose it) → success: toast `Post created` + `navigate('/p/' + id)`. Server 400/403 (locked domain): `Alert` with the message. Go back = `navigate(-1)`.
 
-- [ ] **Step 3: Tests** — renders all fields + disabled v2 chips; validation rejects short title and non-URL before fetch; submit success navigates (stubbed fetch); API error surfaces in Alert; signed-out renders login CTA.
+- [x] **Step 3: Tests** — renders all fields + disabled v2 chips; validation rejects short title and non-URL before fetch; submit success navigates (stubbed fetch); API error surfaces in Alert; signed-out renders login CTA.
 
-- [ ] **Step 4: Verify + commit** — `bun run check`, `vitest run apps/web`, typecheck. Commit: `feat: submit page with provider registry chips and validation`.
+- [x] **Step 4: Verify + commit** — `bun run check`, `vitest run apps/web`, typecheck. Commit: `feat: submit page with provider registry chips and validation`.
 
 ---
 
@@ -472,13 +472,13 @@ interface PostCardProps {
 
 - Produces: Frame 06 — header (avatar initials, `userHandle`, stats: swag / posts / comments / member since), Posts|Comments tabs, mini post rows, right card with the swag breakdown.
 
-- [ ] **Step 1: loader** — `apiFetch('/api/users/:username')` → `UserProfileDto`; 404 → error boundary. Unknown-user test lives at the component level.
+- [x] **Step 1: loader** — `apiFetch('/api/users/:username')` → `UserProfileDto`; 404 → error boundary. Unknown-user test lives at the component level.
 
-- [ ] **Step 2: render** — header per frame: `Avatar` + `AvatarFallback` with initials (first two chars uppercased), `userHandle(username)` as h3, stats row `swag | posts | comments | member since <Mon YYYY>` (`Intl.DateTimeFormat('en', { month:'short', year:'numeric' })`). Tabs `Posts | Comments` (client-side `Tabs`): Posts = mini rows (channel badge, title link to `/p/:id`, `+score` in up-token color, `· timeAgo · N comments` — comments count unknown on profile rows, omit it and keep `· timeAgo`); Comments tab = count-only in v1: a muted card `N comments across the site — comment browsing arrives in v2` (frame note: "comments count-only in v1"). Right card `Swag breakdown`: `Card` composition (`CardHeader` + `CardTitle` + `CardContent` holding the two stat rows) with `post swag` / `comment swag` values + hint `recounted periodically from raw votes — self-healing`.
+- [x] **Step 2: render** — header per frame: `Avatar` + `AvatarFallback` with initials (first two chars uppercased), `userHandle(username)` as h3, stats row `swag | posts | comments | member since <Mon YYYY>` (`Intl.DateTimeFormat('en', { month:'short', year:'numeric' })`). Tabs `Posts | Comments` (client-side `Tabs`): Posts = mini rows (channel badge, title link to `/p/:id`, `+score` in up-token color, `· timeAgo · N comments` — comments count unknown on profile rows, omit it and keep `· timeAgo`); Comments tab = count-only in v1: a muted card `N comments across the site — comment browsing arrives in v2` (frame note: "comments count-only in v1"). Right card `Swag breakdown`: `Card` composition (`CardHeader` + `CardTitle` + `CardContent` holding the two stat rows) with `post swag` / `comment swag` values + hint `recounted periodically from raw votes — self-healing`.
 
-- [ ] **Step 3: Tests** — header stats render from fixture DTO; posts tab lists rows with links; comments tab shows the count-only note; breakdown card shows both numbers.
+- [x] **Step 3: Tests** — header stats render from fixture DTO; posts tab lists rows with links; comments tab shows the count-only note; breakdown card shows both numbers.
 
-- [ ] **Step 4: Verify + commit** — `bun run check`, `vitest run apps/web`, typecheck. Commit: `feat: public profile page with swag breakdown and post history`.
+- [x] **Step 4: Verify + commit** — `bun run check`, `vitest run apps/web`, typecheck. Commit: `feat: public profile page with swag breakdown and post history`.
 
 ---
 
