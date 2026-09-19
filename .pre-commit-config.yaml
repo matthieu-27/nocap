@@ -34,12 +34,14 @@ repos:
 
   # ---------- review: fallow (pre-push stage) ----------
   # Findings get addressed or explicitly justified, never ignored.
-  # pass_filenames: fallow computes its own diff; positional args error out.
+  # --base origin/main: gate what the outgoing commits introduce (gate=new-only,
+  # the repo's documented policy) — inherited findings on untouched code don't
+  # block. pass_filenames: fallow computes its own diff; positional args error.
   - repo: local
     hooks:
       - id: fallow
         name: fallow — AI review of outgoing changes
-        entry: npx fallow
+        entry: npx fallow audit --base origin/main --quiet --gate-marker pre-push
         language: system
         stages: [pre-push]
         pass_filenames: false

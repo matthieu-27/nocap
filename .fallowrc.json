@@ -28,9 +28,12 @@
   },
   // Unused today but kept for upcoming base-mira shadcn components (icons
   // and animation CSS arrive with the first components that need them).
+  // isbot ships with the react-router framework template; nothing imports it
+  // directly (bot detection lives inside react-router itself).
   "ignoreDependencies": [
     "@hugeicons/core-free-icons",
     "@hugeicons/react",
-    "tw-animate-css"
+    "tw-animate-css",
+    "isbot"
   ]
 }
