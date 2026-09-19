@@ -17,6 +17,7 @@ const routes: RouteConfig = [
   ]),
   route('login', './routes/login.tsx'),
   route('signup', './routes/signup.tsx'),
+  route('submit', './routes/submit.tsx'),
 ];
 // RR v8 requires the route config as the default export of routes.ts.
 export default routes;
