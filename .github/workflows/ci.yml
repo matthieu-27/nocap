@@ -2,11 +2,11 @@
 # the author, this gates every PR (and main, which autoDeploy ships straight
 # to Render).
 #
-# Requires two repo settings (Settings > Secrets and variables > Actions):
-#   secret    NEON_API_KEY    — https://console.neon.tech, create API key
-#   variable  NEON_PROJECT_ID — morning-tooth-22156862
-# The api job branches the production database per run (copy-on-write, so
-# schema + seed arrive with it) and deletes the branch afterwards.
+# The api job runs against a local postgres:18 service container: the tests
+# truncate and arrange their own data, and GitHub's US runners talking to
+# Neon Frankfurt pay ~100 ms per round trip — enough to blow bun's 5 s test
+# timeout (measured: "passing" tests at 3.6-4.6 s, 28 timeouts). Production
+# still runs Neon; same engine, same major version.
 
 name: ci
 
@@ -46,35 +46,31 @@ jobs:
   api-tests:
     name: bun test (api, real postgres)
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: nocap
+          POSTGRES_PASSWORD: nocap
+          POSTGRES_DB: nocap
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U nocap"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgres://nocap:nocap@localhost:5432/nocap
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
       - run: bun install
 
-      - name: Create ephemeral Neon branch
-        id: neon
-        uses: neondatabase/create-branch-action@v6
-        with:
-          api_key: ${{ secrets.NEON_API_KEY }}
-          project_id: ${{ vars.NEON_PROJECT_ID }}
-          branch_name: ci-${{ github.run_id }}-${{ github.run_attempt }}
-          database: neondb
-
       - name: Migrate
         working-directory: apps/api
-        env:
-          DATABASE_URL: ${{ steps.neon.outputs.db_url }}
         run: bun run db:migrate
 
       - name: Test
         working-directory: apps/api
-        env:
-          DATABASE_URL: ${{ steps.neon.outputs.db_url }}
         run: bun test
-
-      - name: Delete Neon branch
-        if: always()
-        run: >
-          curl -sS -X DELETE
-          "https://console.neon.tech/api/v2/projects/${{ vars.NEON_PROJECT_ID }}/branches/${{ steps.neon.outputs.branch_id }}"
-          -H "Authorization: Bearer ${{ secrets.NEON_API_KEY }}"
